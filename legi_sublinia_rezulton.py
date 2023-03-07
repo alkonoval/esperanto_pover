@@ -2,6 +2,7 @@ import re
 
 from dosierojn_ls import FontDosiero, CelDosiero
 from vortaro import Vortaro
+from utils import forigi_ripetojn_konservante_ordon
 
 def ricevi_cxefvortojn(dnomo):
     """Прочитать результат программы Sublinio и выделить найденные слова/корни"""
@@ -15,7 +16,7 @@ def ricevi_cxefvortojn(dnomo):
             cexvortoj.append(f'{linio}#')
         else:
             cexvortoj += linio.split('[')[1].split(']')[0].split('~')
-    return cexvortoj#, nekonatoj
+    return forigi_ripetojn_konservante_ordon(cexvortoj)#, nekonatoj
 
 if __name__ == '__main__':
     vortaro = Vortaro()

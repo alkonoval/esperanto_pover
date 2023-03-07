@@ -16,6 +16,14 @@ class Teksto:
         self.teksto = FontDosiero(dnomo).legi()
         return self
     
+    def prilabori(self):
+        self.vortoj = self.spliti_al_vortoj()
+        self.dismorfigo = self.dismorfigi() # словарь: слово -> список его разборов
+        #self.signo_por_nerekonita_vorto = '#'
+        self.nerekonitaj_vortoj = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
+        self.vortaraj_vortoj = self.ricevi_vortarajn_vortojn()
+        self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
+    
     def spliti_al_vortoj(self, cel_dnomo = None):
         """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
         vortoj = re.findall("[a-z']+", self.teksto.lower(), flags=re.IGNORECASE)
@@ -24,50 +32,40 @@ class Teksto:
             CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
         return rezulto
     
-    def spliti_al_fragmentoj(self):
-        pass
-    
-    def vortareto(self, vortaro = BAZA_VORTARO):
-        vortoj = self.spliti_al_vortoj()
+    def ricevi_vortarajn_vortojn(self):
         radikoj = []
-        nekonataj_vortoj = []
-        for vorto in vortoj:
-            vdis = Dismorfemo(vorto)
-            vortradikoj = vdis.radikoj
+        for vorto in self.vortoj:
+            vortradikoj = self.dismorfigo[vorto].radikoj
             radikoj += vortradikoj
-            if vdis.disigoj == []:
-                nekonataj_vortoj.append(vorto)
-        cxefvortoj_el = vortaro.cxefvortoj_el_radiko()
+        cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
         vortaraj_vortoj = []
         for radiko in radikoj:
             vortaraj_vortoj += cxefvortoj_el[radiko]
-        return vortaro.subvortaro(vortaraj_vortoj + nekonataj_vortoj)
-    
-    def dismorfigi(self, cel_dnomo = None):
-        vortoj = self.spliti_al_vortoj()
-        rezulto = {} # слово -> его разбор
-        for vorto in vortoj:
-            vdis = Dismorfemo(vorto)
-            if vdis.disigoj != []:
-                rezulto[vorto] = str(vdis)
-                #rezulto[vorto] = str(vdis.radikoj)
-                #rezulto[vorto] = str(vdis.disigoj)
-            else:
-                rezulto[vorto] = 'Не удалось разобрать'
-        if cel_dnomo is not None:
-            #CelDosiero(cel_dnomo).skribi_dict(rezulto)
-            Vortaro(rezulto).save(dnomo = cel_dnomo)
+        return vortaraj_vortoj
+        
+    def dismorfigi(self):
+        rezulto = {} # словарь: слово -> список его разборов
+        for vorto in self.vortoj:
+            rezulto[vorto] = Dismorfemo(vorto)
         return rezulto
+    
+    def skribi_dismorfigon(self, cel_dnomo):
+        kore_por_vortaro = {vorto : str(vdis) for vorto, vdis in self.dismorfigo.items()}
+        #kore_por_vortaro = {vorto : str(vdis.disigoj) for vorto, vdis in self.dismorfigo.items()}
+        Vortaro(kore_por_vortaro).save(dnomo = cel_dnomo)
+        
 
 if __name__ == '__main__':
-    # Разбить текст на слова
     teksto = Teksto().elsxuti_el_dosieron(dnomo = 'Teksto_1_SL.txt')
-    #teksto.spliti_al_vortoj(cel_dnomo = '2_SL.txt')
-    
-    # Произвести морфологический разбор всех слов текста
-    teksto.dismorfigi(cel_dnomo = 'Dismorfemo')
+    teksto.prilabori()
+
+    # Сохранить морфологический разбор всех слов текста
+    teksto.skribi_dismorfigon(cel_dnomo = 'Dismorfemo')
     
     # Получить словарик для слов из текста
-    teksto.vortareto().save(dnomo = 'Vortareto')
+    teksto.vortareto.save(dnomo = 'Vortareto')
+    
+    # Сохранить словарные слова
+    CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(teksto.vortaraj_vortoj + [f'{vorto}#' for vorto in teksto.nerekonitaj_vortoj])
     
     
