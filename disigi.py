@@ -1,112 +1,145 @@
 import re
 
 from dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from konstantaro import MORFEMARO, LEKSEMARO, senfinajxigi
-from vortaro import Vortaro
+from konstantaro import MORFEMARO, LEKSEMARO
+from utils import senfinajxigi, forigi_ripetojn_konservante_ordon
+from vortaro import BAZA_VORTARO
 
-class Teksto:
-    
-    def __init__(self, teksto=''):
-        self.teksto = teksto
-    
-    def elsxuti_el_dosieron(self, dnomo):
-        self.teksto = FontDosiero(dnomo).legi()
-        return self
-    
-    def spliti_al_vortoj(self, cel_dnomo = None):
-        """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
-        vortoj = re.findall("[a-z']+", self.teksto.lower(), flags=re.IGNORECASE)
-        rezulto = []
-        for vorto in vortoj:
-            if vorto not in rezulto:
-                rezulto.append(vorto)
-        if cel_dnomo is not None:
-            CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
-        return rezulto
-    
-    def disigi(self, radikaro, cel_dnomo = None):
-        vortoj = self.spliti_al_vortoj()
-        radikaro = set(radikaro)
-        rezulto = {} # слово -> его разбор
-        for vorto in vortoj:
-            disv = Dismorfemo(vorto, radikoj = radikaro)
-            rezulto[vorto] = disv.ricevi()
-        if cel_dnomo is not None:
-            CelDosiero(cel_dnomo).skribi_dict(rezulto)
-        return rezulto
-
-BASE = {'V': LEKSEMARO.cxiuj_vortetoj,
+EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj,
         'F': MORFEMARO.finajxoj,
         'A': MORFEMARO.afiksoj,
         'G': ['o', 'a'],
-        'R': ['man', 'person', 'son', 'hom', 'virt']}
+        'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
+        }
+EO_REGULOJ = {'w': ['V', 'bF'],
+              'b': ['V', 'R', 'A', 'bR', 'bA']
+              }
 
-REGULOJ = {'w': ['V', 'bF'], 'b': ['V', 'R', 'A', 'bR', 'bA']}
-
-def dividi(peco, regulo):
-    tipo = regulo[-1]
-    new_state = regulo[0] if len(regulo) > 1 else ''
-    variantoj = []
-    if new_state is not '':
-        for mor in BASE[tipo]:
-            sxablono = f'{mor}$'
-            match = re.search(sxablono, peco)
-            if match:
-                left_peco = re.split(sxablono, peco)[0]
-                if left_peco is not '':
-                    rez = [(left_peco, new_state), (mor, tipo)]
-                    variantoj.append(rez)
-    else:
-        for mor in BASE[tipo]:
-            if peco == mor:
-                rez = (('', new_state), (mor, tipo))
-                variantoj.append(rez)
-    return variantoj
-
-def dismorfemi(peco, state = 'w'):
-    variantoj = []
-    for regulo in REGULOJ[state]:
-        rez = dividi(peco, regulo)
-        variantoj += rez
-    rezulto = []
-    for vr in variantoj:
-        new_peco = vr[0][0]
-        new_state = vr[0][1]
-        mor_kun_tipo = vr[1]
-        if new_peco is '':
-            rez = [mor_kun_tipo]
-            rezulto.append(rez)
+class Gramatiko:
+    """ Леволинейная грамматика для распознавания слов языка
+    
+    Все нетерминальные символы бывают двух видов: состояния и множества.
+    Символы-состояния обозначаются строчными латинскими буквами, а символы-множества --- заглавными.
+    Правила бывают двух видов:
+    1) Определяется словаряем base : X -> [str1, str2, ..., str_n],
+    который каждому символу-множеству сопоставляет список строк.
+    В грамматике соответствует конечному числу правил X -> str1, X -> str2, ..., X -> str_n
+    2) Определяется словарем reguloj : x -> ['xA', 'A', 'yA', 'yB', 'B', ...],
+    который каждому символу-состоянию сопоставляет список строк специального вида.
+    Каждая такая строка имеет вид символ-соостояние символ-множество либо только символ-множество.
+    В  грамматике соответствует конечному числу правил x -> xA, x -> A, x -> yA, x -> yB, x -> B, ...
+    
+    start --- начальный нетерминальный символ-состояние
+    """
+    def __init__(self, base = EO_BASE, reguloj = EO_REGULOJ, start = 'w'):
+        self.base = base
+        self.reguloj = reguloj
+        self.start = start
+        
+    def dividi(self, peco, regulo):
+        """
+        Получить все возможные варианты разбиения строки peco в соответвии с строкой специального вида regulo.
+        Формат вывода [((left_peco, state_simbol), (right_peco, set_simblo)), ...]
+        
+        Для каждого разбиения ((left_peco, state-simbol), (right_peco, set-simblo)) должны выполняться соотношения:
+        1) left_peco + right_peco = peco
+        2) Если regulo имеет вид 'xA', то
+            state_simbol = 'x'
+            set_simblo = 'A'
+            right_peco in base['A']
+        3) Если regulo имеет вид 'A', то
+            left_peco = ''
+            state_simbol = ''
+            set_simblo = 'A'
+            right_peco in base['A']
+        """
+        
+        tipo = regulo[-1]
+        new_state = regulo[0] if len(regulo) > 1 else ''
+        variantoj = []
+        if new_state != '':
+            for mor in self.base[tipo]:
+                sxablono = f'{mor}$'
+                match = re.search(sxablono, peco)
+                if match:
+                    left_peco = re.split(sxablono, peco)[0]
+                    if left_peco != '':
+                        rez = ((left_peco, new_state), (mor, tipo))
+                        variantoj.append(rez)
         else:
-            rekuro = dismorfemi(new_peco, new_state)
-            if rekuro is []:
-                continue
-            rez = []
-            for it in rekuro:
-                rez.append(it + [mor_kun_tipo])
-            rezulto += rez
-    return rezulto
+            for mor in self.base[tipo]:
+                if peco == mor:
+                    rez = (('', new_state), (mor, tipo))
+                    variantoj.append(rez)
+        return variantoj
+    
+    def disigi(self, peco, state = None):
+        """
+        Получить все возможные разборы строки peco.
+        
+        Начальное соотояние определяется параметром state. Если этот параметром не задан, используется соостояние start.
+        Подходящим разбором считается список вида [(s_1, A_1), ..., (s_n, A_n)], где
+        s_1 ... s_n есть peco; A_1, ..., A_n --- символы-множества и
+        строки s_1, ..., s_n принадлежат соответственно множествам base[A_1], ... base[A_n]
+        """
+        
+        if state is None:
+            state = self.start
+        variantoj = []
+        for regulo in self.reguloj[state]:
+            rez = self.dividi(peco, regulo)
+            variantoj += rez
+        rezulto = []
+        for vr in variantoj:
+            new_peco = vr[0][0]
+            new_state = vr[0][1]
+            mor_kun_tipo = vr[1]
+            if new_peco is '':
+                rez = [mor_kun_tipo]
+                rezulto.append(rez)
+            else:
+                rekuro = self.disigi(new_peco, new_state)
+                if rekuro is []:
+                    continue
+                rez = []
+                for it in rekuro:
+                    rez.append(it + [mor_kun_tipo])
+                rezulto += rez
+        return rezulto
             
 class Dismorfemo:
-    def __init__(self, vorto, radikoj):
-        self.radikoj = set(radikoj)
+    def __init__(self, vorto):
         self.vorto = vorto.lower()
-        self.radikalo = self.ricevi_radikalon()
+        self.radikalo = self.ricevi_radikalon() # основа слова
+        self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
+        self.gramatiko = self.ricevi_tauxgan_gramatikon()
+        self.disigoj = self.gramatiko.disigi(self.vorto)
+        self.radikoj = self.ricevi_radikojn()
     
-    def ricevi(self):
-        self.malmultigi_eblajn_radikojn()
-        BASE['R'] = self.radikoj
-        rez = dismorfemi(self.vorto)
+    def ricevi_tauxgan_gramatikon(self):
+        baseR = dict(EO_BASE)
+        baseR['R'] = self.eblaj_radikoj
+        return Gramatiko(base = baseR)
+    
+    def __str__(self):
         rezs = []
-        for r in rez:
-            out = '-'.join(map(lambda x: x[0], r))
+        for disigo in self.disigoj:
+            out = '-'.join(map(lambda x: x[0], disigo))
             rezs.append(out)
         return ', '.join(rezs)
+    
+    def ricevi_radikojn(self):
+        rezulto = []
+        for disigo in self.disigoj:
+            radikoj = [x[0] for x in disigo if x[1] == 'R']
+            rezulto += radikoj
+        return rezulto
                         
     def ricevi_radikalon(self):
         rezulto = senfinajxigi(self.vorto, finajxoj = MORFEMARO.finajxoj, esceptoj = LEKSEMARO.cxiuj_vortetoj)
         return rezulto
     
-    def malmultigi_eblajn_radikojn(self):
+    def ricevi_eblajn_radikojn(self, vortaraj_radikoj = BAZA_VORTARO.radikoj(output_format = 'set')):
         rezulto = []
         vorto = self.radikalo
         esceptoj = set(LEKSEMARO.cxiuj_vortetoj + MORFEMARO.afiksoj)
@@ -114,20 +147,16 @@ class Dismorfemo:
         for radiko in subvortoj:
             if radiko in esceptoj:
                 continue
-            if radiko in self.radikoj:
+            if radiko in vortaraj_radikoj:
                 rezulto.append(radiko)
-        self.radikoj = rezulto
+        return forigi_ripetojn_konservante_ordon(rezulto)
 
 if __name__ == '__main__':
-    # Разбить текст на слова
-    teksto = Teksto().elsxuti_el_dosieron(dnomo = '1_SL.txt')
-    #teksto.spliti_al_vortoj(cel_dnomo = '2_SL.txt')
+    pass
+    #gram = Gramatiko()
+    #print(gram.disigi('malvirtulo'))
+    #print(gram.disigi('persone'))
     
-    # Произвести морфологический разбор
-    vortaro = Vortaro().elsxuti_el_dosieron('bazavortaro.txt')
-    teksto.disigi(radikaro = vortaro.radikoj(), cel_dnomo = 'Dismorfemo.txt')
+    #print(Dismorfemo('murmuri').disigoj)
     
-    #BASE['R'] = ['man', 'person', 'son', 'hom', 'virt']
-    #rez1 = dismorfemi('persone', state = 'w')
-    #rez2 = dismorfemi('malvirtulo', state = 'w')
     

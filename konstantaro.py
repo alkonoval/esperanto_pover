@@ -1,14 +1,4 @@
-import re
 from itertools import product
-
-from dosierojn_ls import FontDosiero
-
-def senfinajxigi(vorto, finajxoj, esceptoj):
-    if vorto in esceptoj:
-        return vorto
-    else:
-        sxablono = '|'.join(map(lambda w: f'{w}$', finajxoj))
-        return re.split(sxablono, vorto)[0]
 
 class Morfemaro:
     def __init__(self):
@@ -74,6 +64,3 @@ class Leksemaro:
             self.oa_vortecaj_vortetoj + self.e_vortetoj + self.ekkriaj_vortetoj
         self.cxiuj_vortetoj = list(set(self.cxiuj_vortetoj))
 LEKSEMARO = Leksemaro()
-
-if __name__ == '__main__':
-    pass

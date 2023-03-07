@@ -1,6 +1,6 @@
 from dosierojn_ls import FontDosiero, CelDosiero, DATA_DIR
 from konstantaro import MORFEMARO, LEKSEMARO
-from konstantaro import senfinajxigi
+from utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 
 def radikigi(vortara_vorto):
     return senfinajxigi(vortara_vorto, finajxoj = MORFEMARO.vortaraj_finajxoj, esceptoj = LEKSEMARO.cxiuj_vortetoj)
@@ -34,17 +34,24 @@ class Vortaro:
             new_kore[key] = self.kore.get(key, None)
         return Vortaro(new_kore)
     
-    def cxefvorto_al_radiko(self):
-        new_kore = dict(map(lambda x: (x, radikigi(x)), self.kore.keys()))
-        return Vortaro(new_kore)
+    def cxefvortoj_el_radiko(self):
+        """Словарь: radiko -> [cxefvorto_1, cxefvorto_2, ]"""
+        radikoj = self.radikoj(output_format = 'list')
+        rezulto = {radiko: [] for radiko in radikoj}
+        for cxefvorto in self.kore.keys():
+            radiko = radikigi(cxefvorto)
+            rezulto[radiko].append(cxefvorto)
+        return rezulto
     
-    def radiko_al_cxefvorto(self):
-        it = map(lambda x: (radikigi(x), x), self.kore.keys())
-        return Vortaro(dict(it)) # !!! Потеря некоторых слов w для которых radikigi(w) не уникально
-    
-    def radikoj(self):
-        #return set(map(lambda x: radikigi(x), self.kore.keys()))
-        return list(map(lambda x: radikigi(x), self.kore.keys()))
+    def radikoj(self, output_format = 'list'):
+        if output_format == 'set':
+            return set(map(lambda x: radikigi(x), self.kore.keys()))
+        elif output_format == 'list':
+            return list(map(lambda x: radikigi(x), self.kore.keys()))
+        elif output_format == 'dict':
+            return dict(map(lambda x: (x, radikigi(x)), self.kore.keys())) # Словарь: cxefvorto -> radiko
+        else:
+            return map(lambda x: radikigi(x), self.kore.keys())
     
     def html(self):
         """Вернуть словарь в виде текста в формате html"""
@@ -89,20 +96,15 @@ class Vortaro:
         output = switch[dosiertipo]()
         CelDosiero(dnomo).skribi(output)
 
+# Загрузить словарь из файла
+BAZA_VORTARO = Vortaro().elsxuti_el_dosieron('bazavortaro.txt')
+
 if __name__ == '__main__':
-    # Загрузить словарь из файла
-    vortaro = Vortaro()
-    vortaro.elsxuti_el_dosieron('bazavortaro.txt')
-    
     # Сохранить весь словарь в формате html
-    #vortaro.save(dnomo = "tuta_bazvortaro", dosiertipo = 'html')
+    #BAZA_VORTARO.save(dnomo = "tuta_bazvortaro", dosiertipo = 'html')
     
     # Подсловарь для слов из файла
     vortoj = FontDosiero('P_1.txt').legi_vortliston()
-    subvortaro = vortaro.subvortaro(vortoj)
+    subvortaro = BAZA_VORTARO.subvortaro(vortoj)
     subvortaro.save(dnomo = 'P_2', dosiertipo = 'html')
-    
-    # Словарь: слово -> основа (слово без окончания)
-    radikigo = vortaro.cxefvorto_al_radiko()
-    radikigo.save(dnomo = 'Radikigo', dosiertipo = 'html')
     
