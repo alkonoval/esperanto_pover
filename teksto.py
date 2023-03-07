@@ -20,7 +20,7 @@ class Teksto:
         self.vortoj = self.spliti_al_vortoj()
         self.dismorfigo = self.dismorfigi() # словарь: слово -> список его разборов
         #self.signo_por_nerekonita_vorto = '#'
-        self.nerekonitaj_vortoj = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
+        self.nerekonitaj_vortoj = self.ricevi_nerekonitajn_vortojn()
         self.vortaraj_vortoj = self.ricevi_vortarajn_vortojn()
         self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
     
@@ -32,6 +32,10 @@ class Teksto:
             CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
         return rezulto
     
+    def ricevi_nerekonitajn_vortojn(self):
+        rezulto = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
+        return forigi_ripetojn_konservante_ordon(rezulto)
+    
     def ricevi_vortarajn_vortojn(self):
         radikoj = []
         for vorto in self.vortoj:
@@ -41,7 +45,7 @@ class Teksto:
         vortaraj_vortoj = []
         for radiko in radikoj:
             vortaraj_vortoj += cxefvortoj_el[radiko]
-        return vortaraj_vortoj
+        return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
         
     def dismorfigi(self):
         rezulto = {} # словарь: слово -> список его разборов
