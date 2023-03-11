@@ -18,10 +18,10 @@ class Teksto:
     
     def prilabori(self):
         self.vortoj = self.spliti_al_vortoj()
-        self.dismorfigo = self.dismorfigi() # словарь: слово -> список его разборов
+        self.dismorfigo = self._dismorfigi() # словарь: слово -> список его разборов
         #self.signo_por_nerekonita_vorto = '#'
-        self.nerekonitaj_vortoj = self.ricevi_nerekonitajn_vortojn()
-        self.vortaraj_vortoj = self.ricevi_vortarajn_vortojn()
+        self.nerekonitaj_vortoj = self._ricevi_nerekonitajn_vortojn()
+        self.vortaraj_vortoj = self._ricevi_vortarajn_vortojn()
         self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
     
     def spliti_al_vortoj(self, cel_dnomo = None):
@@ -32,11 +32,11 @@ class Teksto:
             CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
         return rezulto
     
-    def ricevi_nerekonitajn_vortojn(self):
+    def _ricevi_nerekonitajn_vortojn(self):
         rezulto = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
         return forigi_ripetojn_konservante_ordon(rezulto)
     
-    def ricevi_vortarajn_vortojn(self):
+    def _ricevi_vortarajn_vortojn(self):
         radikoj = []
         for vorto in self.vortoj:
             vortradikoj = self.dismorfigo[vorto].radikoj
@@ -47,15 +47,17 @@ class Teksto:
             vortaraj_vortoj += cxefvortoj_el[radiko]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
         
-    def dismorfigi(self):
+    def _dismorfigi(self):
         rezulto = {} # словарь: слово -> список его разборов
         for vorto in self.vortoj:
             rezulto[vorto] = Dismorfemo(vorto)
         return rezulto
     
-    def skribi_dismorfigon(self, cel_dnomo):
-        kore_por_vortaro = {vorto : str(vdis) for vorto, vdis in self.dismorfigo.items()}
-        #kore_por_vortaro = {vorto : str(vdis.disigoj) for vorto, vdis in self.dismorfigo.items()}
+    def skribi_dismorfigon(self, cel_dnomo, plendetala = False):
+        if plendetala:
+            kore_por_vortaro = {vorto : str(vdis.disigoj) for vorto, vdis in self.dismorfigo.items()}
+        else:
+            kore_por_vortaro = {vorto : str(vdis) for vorto, vdis in self.dismorfigo.items()}
         Vortaro(kore_por_vortaro).save(dnomo = cel_dnomo)
         
 
@@ -65,11 +67,13 @@ if __name__ == '__main__':
 
     # Сохранить морфологический разбор всех слов текста
     teksto.skribi_dismorfigon(cel_dnomo = 'Dismorfemo')
+    teksto.skribi_dismorfigon(cel_dnomo = 'Dismorfemo_plendetala', plendetala = True)
     
     # Получить словарик для слов из текста
     teksto.vortareto.save(dnomo = 'Vortareto')
     
     # Сохранить словарные слова
-    CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(teksto.vortaraj_vortoj + [f'{vorto}#' for vorto in teksto.nerekonitaj_vortoj])
+    vortoj = teksto.vortaraj_vortoj + [f'{vorto}#' for vorto in teksto.nerekonitaj_vortoj]
+    CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(vortoj)
     
     

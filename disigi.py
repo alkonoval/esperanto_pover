@@ -5,14 +5,17 @@ from konstantaro import MORFEMARO, LEKSEMARO
 from utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from vortaro import BAZA_VORTARO
 
-EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj,
-        'F': MORFEMARO.finajxoj,
-        'A': MORFEMARO.afiksoj,
-        'G': ['o', 'a'],
-        'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
+EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj, # Специальные слова, могужие употребляться без окончания
+           'N': LEKSEMARO.jn_vortetoj, # Специальные слова в jn-форме
+           'F': MORFEMARO.finajxoj, # Окончания
+           'A': MORFEMARO.afiksoj, # Аффиксы
+           'G': ['o', 'e', 'en', 'i', 'a'], # Соединительная гласная
+           'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
         }
-EO_REGULOJ = {'w': ['V', 'bF'],
-              'b': ['V', 'R', 'A', 'bR', 'bA']
+# Хорошо бы выделить из специальных слов те, которые 100% не могут употребляться в словообразовании, а только как самостоятельные слова
+EO_REGULOJ = {'w': ['V', 'bF', 'N'],
+              'b': ['V', 'R', 'A', 'bR', 'bA', 'cG'],
+              'c': ['V', 'R', 'A', 'bR', 'bA']
               }
 
 class Gramatiko:
