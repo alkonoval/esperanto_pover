@@ -19,9 +19,13 @@ class Teksto:
     def prilabori(self):
         self.vortoj = self.spliti_al_vortoj()
         self.dismorfigo = self._dismorfigi() # словарь: слово -> список его разборов
-        #self.signo_por_nerekonita_vorto = '#'
+        
+        self.vortaraj_vortoj_por = self._ricevi_vortarajn_vortojn_por()
+        
+        self.radikoj = self._ricevi_radikojn()
         self.nerekonitaj_vortoj = self._ricevi_nerekonitajn_vortojn()
         self.vortaraj_vortoj = self._ricevi_vortarajn_vortojn()
+        
         self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
     
     def spliti_al_vortoj(self, cel_dnomo = None):
@@ -36,16 +40,36 @@ class Teksto:
         rezulto = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
         return forigi_ripetojn_konservante_ordon(rezulto)
     
-    def _ricevi_vortarajn_vortojn(self):
+    def _ricevi_radikojn(self):
         radikoj = []
         for vorto in self.vortoj:
             vortradikoj = self.dismorfigo[vorto].radikoj
             radikoj += vortradikoj
+        return radikoj
+    
+    def _ricevi_vortarajn_vortojn_por(self):
         cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
+        vortaraj_vortoj_por = {}
+        for vorto in self.vortoj:
+            vortradikoj = self.dismorfigo[vorto].radikoj
+            vortaraj_vortoj_por_vorto = []
+            for radiko in vortradikoj:
+                vortaraj_vortoj_por_vorto += cxefvortoj_el[radiko]
+            vortaraj_vortoj_por[vorto] = forigi_ripetojn_konservante_ordon(vortaraj_vortoj_por_vorto)
+        return vortaraj_vortoj_por
+    
+    def _ricevi_vortarajn_vortojn(self):
         vortaraj_vortoj = []
-        for radiko in radikoj:
-            vortaraj_vortoj += cxefvortoj_el[radiko]
+        for vorto in self.vortoj:
+            vortaraj_vortoj += self.vortaraj_vortoj_por[vorto]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
+    
+    #def _ricevi_vortarajn_vortojn(self):
+        #cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
+        #vortaraj_vortoj = []
+        #for radiko in self.radikoj:
+            #vortaraj_vortoj += cxefvortoj_el[radiko]
+        #return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
         
     def _dismorfigi(self):
         rezulto = {} # словарь: слово -> список его разборов
@@ -59,6 +83,15 @@ class Teksto:
         else:
             kore_por_vortaro = {vorto : str(vdis) for vorto, vdis in self.dismorfigo.items()}
         Vortaro(kore_por_vortaro).save(dnomo = cel_dnomo)
+    
+    def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(self, cel_dnomo):
+        linioj = []
+        for vorto in self.vortoj:
+            for vortara_vorto in self.vortaraj_vortoj_por[vorto]:
+                linioj.append(f'{vorto}\t{vortara_vorto}')
+            if vorto in self.nerekonitaj_vortoj:
+                linioj.append(vorto + '#')
+        CelDosiero(dnomo = cel_dnomo).skribi_liniojn(linioj)
         
 
 if __name__ == '__main__':
@@ -73,7 +106,7 @@ if __name__ == '__main__':
     teksto.vortareto.save(dnomo = 'Vortareto')
     
     # Сохранить словарные слова
-    vortoj = teksto.vortaraj_vortoj + [f'{vorto}#' for vorto in teksto.nerekonitaj_vortoj]
-    CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(vortoj)
+    teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj('Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt')
+    #CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(vortoj)
     
     
