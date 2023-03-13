@@ -1,14 +1,15 @@
 import re
+from functools import reduce
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
 from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO
 
-#Vr_vortoj = LEKSEMARO.cxiuj_vortetoj # Все специальные слова, могущие употребляться без окончания
+# Виды морфем
 EO_BASE = {'Va': VORTETOJ.Va, # Специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
            'Vp': VORTETOJ.Vp, # Специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
-           'Vs': VORTETOJ.Vs, # Специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
+           'Vpa': VORTETOJ.Vpa, # Специальные слова, которые встречаются либо самостоятельно, либо с окончанием
            'Vr': VORTETOJ.Vr, # Cпециальные слова, которые могут быть внутри сложного слова
            'N': [], # Арабские числа # Специальные разбор в функции dividi
            'F': MORFEMARO.finajxoj, # Окончания
@@ -17,16 +18,21 @@ EO_BASE = {'Va': VORTETOJ.Va, # Специальные слова, которы�
            'S': MORFEMARO.internaj_kunligaj_simboloj, # дефис
            'R': [] # Возможные корни из словаря # EO_BASE['R'] инициализируется внутри класса Dismorfemo
            }
-komencaj_reguloj = ['N', 'Vr', 'Vp', 'Vs', 'Va'] + ['aF', 'bVr', 'bVs']
-limigitaj_reguloj = ['R', 'A', 'Vr', 'N', 'Vp'] + ['bR', 'bA', 'bVr'] # справа может быть соединительная гласная или окончание
-ordinaraj_reguloj = limigitaj_reguloj + ['cK', 'cS', 'wS']
-EO_REGULOJ = {'w': komencaj_reguloj,
-              'a': limigitaj_reguloj,
-              'b': ordinaraj_reguloj,
-              'c': limigitaj_reguloj
+# Выделить морфемы, которые встречаются только после окончания. Пока урежем до этой функции Vp
+EO_REGULOJ = {'w': ['N', 'Vr', 'Vp', 'Vpa', 'Va'] + ['aF', 'bVr'],
+              'a': ['R', 'A', 'N', 'Vr', 'Vp', 'Vpa'] + ['bR', 'bA', 'bVr'], # состояние после окончания
+              'b': ['R', 'A', 'N', 'Vr', 'Vp'] + ['bR', 'bA', 'bVr'] + ['cK', 'cS', 'wS'], # справа что-то есть, но не окончание и не соед.глас.
+              'c': ['R', 'A', 'N', 'Vr', 'Vp'] + ['cR', 'cA', 'cVr'], # состояние после соединительной гласной
               }
 
-# Цифры в составе слова 20a, 15a ?
+# Вес морфемы каждого типа
+def PEZO(x):
+    if x in ['A', 'F']:
+        return 0.5
+    elif x in ['K']:
+        return 0.7
+    else:
+        return 1
 
 class Gramatiko:
     """ Леволинейная грамматика для распознавания слов языка
@@ -118,13 +124,21 @@ class Gramatiko:
         return rezulto
             
 class Dismorfemo:
-    def __init__(self, vorto):
+    def __init__(self, vorto, maksimuma_nombro_de_disigoj = 1):
         self.vorto = vorto.lower()
         self.radikalo = self.ricevi_radikalon() # основа слова
         self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
         self.gramatiko = self.ricevi_tauxgan_gramatikon()
-        self.disigoj = self.gramatiko.disigi(self.vorto)
+        
+        self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
+        self.senlimigaj_disigoj.sort(key = Dismorfemo.pezo)
+        self.disigoj = self.senlimigaj_disigoj[:maksimuma_nombro_de_disigoj]
+        
         self.radikoj = self.ricevi_radikojn()
+    
+    @staticmethod
+    def pezo(disigo):
+        return reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), disigo))
     
     def ricevi_tauxgan_gramatikon(self):
         baseR = dict(EO_BASE)
@@ -133,9 +147,9 @@ class Dismorfemo:
     
     def __str__(self):
         rezs = []
-        for disigo in self.disigoj:
+        for disigo in self.senlimigaj_disigoj:
             out = '-'.join(filter(lambda x: x != '-', map(lambda x: x[0], disigo)))
-            rezs.append(out)
+            rezs.append(out + f'({Dismorfemo.pezo(disigo)})')
         return ', '.join(rezs)
     
     def ricevi_radikojn(self):

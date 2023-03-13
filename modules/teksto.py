@@ -18,7 +18,8 @@ class Teksto:
     
     def prilabori(self):
         self.vortoj = self.spliti_al_vortoj()
-        self.dismorfigo = self._dismorfigi() # словарь: слово -> список его разборов
+        self.senlimita_dismorfigo = self._dismorfigi() # словарь: слово -> список его разборов
+        self.dismorfigo = self.senlimita_dismorfigo
         
         self.vortaraj_vortoj_por = self._ricevi_vortarajn_vortojn_por()
         
@@ -26,7 +27,7 @@ class Teksto:
         self.nerekonitaj_vortoj = self._ricevi_nerekonitajn_vortojn()
         self.vortaraj_vortoj = self._ricevi_vortarajn_vortojn()
         
-        self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
+        self.vortareto = BAZA_VORTARO.subvortaro(self.nerekonitaj_vortoj + self.vortaraj_vortoj)
     
     def spliti_al_vortoj(self, ignori_nombrojn = True, cel_dnomo = None):
         """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
@@ -74,7 +75,7 @@ class Teksto:
     
     def skribi_dismorfigon(self, cel_dnomo, plendetala = False):
         if plendetala:
-            kore_por_vortaro = {vorto : str(vdis.disigoj) for vorto, vdis in self.dismorfigo.items()}
+            kore_por_vortaro = {vorto : str(vdis.senlimigaj_disigoj) for vorto, vdis in self.dismorfigo.items()}
         else:
             kore_por_vortaro = {vorto : str(vdis) for vorto, vdis in self.dismorfigo.items()}
         Vortaro(kore_por_vortaro).save(dnomo = cel_dnomo)

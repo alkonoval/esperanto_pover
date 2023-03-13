@@ -14,10 +14,10 @@ CelDosiero('cxiuj_vortetoj.txt').skribi_dict(vorteto_al_speco)
 #from modules.vortaro import BAZA_VORTARO
 #BAZA_VORTARO.save('Baza_vortaro')
 
-## Протестировать разбор слова
+# Протестировать разбор слова
 #from modules.disigi import Gramatiko, Dismorfemo
 #from modules.dosierojn_ls import x_igi
-#vorto = x_igi('dio-sekunda')
+#vorto = x_igi('ducent')
 #vdis = Dismorfemo(vorto)
 #for k, it in vdis.__dict__.items():
     #print(k, it)

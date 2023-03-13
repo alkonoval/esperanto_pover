@@ -25,7 +25,7 @@ class Morfemaro:
         self.karesaj_sufiksoj = ['cxj', 'nj']
         self.neoficialaj_sufiksoj = ['ac', 'al', 'ed', 'esk', 'i', 'icx', 'ik', 'iv', 'iz', 'ol', 'oz', 'uk', 'unt', 'ut']
         self.sufiksoj = self.oficialaj_sufiksoj
-        self.prefiksoj = ['bo', 'dis', 'ek', 'eks', 'ge', 'mal', 'mis', 'pra', 're'] # oficialaj
+        self.prefiksoj = ['bo', 'dis', 'ek', 'eks', 'ge', 'mal', 'mis', 'pra', 're', 'fi'] # oficialaj
         self.afiksoj = self.sufiksoj + self.prefiksoj
 MORFEMARO = Morfemaro()
 
@@ -72,7 +72,7 @@ class Leksemaro:
         self.e_diversaj_vortetoj = self.alelom_tabelvortoj + ['ajn', 'almenaux', 'ankaux', 'apenaux', 'des', 'do', 'ecx', 'ja', 'jen', 'jes', 'ju', 'kvazaux', 'mem', 'ne', 'nur', 'pli', 'plej', 'preskaux', 'tamen', 'tre', 'tro']
         self.e_vortetoj = self.e_lokaj_vortetoj + self.en_lokaj_vortetoj + self.e_tempaj_vortetoj + self.e_diversaj_vortetoj
         # Звукоподражания
-        self.ekkriaj_vortetoj = ['adiaux', 'bis', 'fi', 'ha', 'he', 'ho', 'hura', 'nu', 've']
+        self.ekkriaj_vortetoj = ['adiaux', 'bis', 'ha', 'he', 'ho', 'hura', 'nu', 've']
         
         # Классы для vortetoj
         self.jn_vortetoj = self.jn_tabelvortoj + self.n_pronomoj
@@ -93,21 +93,21 @@ class Vortetoj:
     Поля:
     Va --- специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
     Vp --- специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
-    Vs --- специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
+    Vpa --- специальные слова, которые встречаются либо самостоятельно, либо с окончанием
     Vr --- специальные слова, которые могут быть в начале, конце и ввнутри сложного слова
     """
     def __init__(self):
         self.Va = LEKSEMARO.jn_tabelvortoj + LEKSEMARO.n_pronomoj + LEKSEMARO.oau_tabelvortoj + ['ke', 'cxu', 'se', 'cxar', 'ol', 'la', 'cxi', 'da', 'je', 'malgraux', 'nek', 'des', 'do', 'ja', 'ju']
-        self.Vp = LEKSEMARO.pronomoj + ['kaj', 'aux', 'sed', 'plus', 'minus'] + LEKSEMARO.ne_oau_tabelvortoj +['for', 'po', 'ecx'] + LEKSEMARO.ekkriaj_vortetoj
-        self.Vs = []
+        self.Vpa = LEKSEMARO.pronomoj + ['kaj', 'aux', 'sed', 'plus', 'minus'] + ['po', 'ecx'] + LEKSEMARO.ekkriaj_vortetoj
+        self.Vp = LEKSEMARO.ne_oau_tabelvortoj + ['for']
         self.Vr = LEKSEMARO.nombraj_vortetoj + ['al', 'anstataux', 'antaux', 'apud', 'cxe', 'cxirkaux', 'de', 'dum', 'ekster', 'el', 'en', 
         'gxis', 'inter', 'kontraux', 'krom', 'kun', 'laux', 'per', 'por', 'post', 'preter', 'pri', 'pro', 'sen', 'sub', 'super', 'sur', 'tra', 'trans', 'ambaux', 'ankoraux', 'baldaux', 'hodiaux', 'hieraux', 'morgaux', 'jam', 'jxus', 'nun', 'plu','tuj', 'ajn', 'almenaux', 'ankaux', 'apenaux', 'jen', 'jes', 'kvazaux', 'mem', 'ne', 'nur', 'pli', 'plej', 'preskaux', 'tamen', 'tre', 'tro']
         
-        self.specoj = [self.Va, self.Vp, self.Vs, self.Vr]
-        self.cxiuj = self.Va + self.Vp + self.Vs + self.Vr
+        self.specoj = [self.Va, self.Vp, self.Vpa, self.Vr]
+        self.cxiuj = self.Va + self.Vp + self.Vpa + self.Vr
         self.speco = dict([(x, 'Va') for x in self.Va] +
                           [(x, 'Vp') for x in self.Vp] +
                           [(x, 'Vr') for x in self.Vr] +
-                          [(x, 'Vs') for x in self.Vs]
+                          [(x, 'Vpa') for x in self.Vpa]
                           )
 VORTETOJ = Vortetoj()
