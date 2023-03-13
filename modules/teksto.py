@@ -1,7 +1,7 @@
 import re
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .konstantaro import MORFEMARO, LEKSEMARO
+from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
 from .utils import forigi_ripetojn_konservante_ordon
 from .disigi import Dismorfemo
 
@@ -10,7 +10,7 @@ from .vortaro import BAZA_VORTARO, Vortaro
 class Teksto:
     
     def __init__(self, teksto=''):
-        self.teksto = teksto
+        self.teksto = x_igi(teksto)
     
     def elsxuti_el_dosieron(self, dnomo):
         self.teksto = FontDosiero(dnomo).legi()
@@ -30,7 +30,7 @@ class Teksto:
     
     def spliti_al_vortoj(self, cel_dnomo = None):
         """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
-        vortoj = re.findall("[a-z']+", self.teksto.lower(), flags=re.IGNORECASE)
+        vortoj = re.findall("[a-z'\-0-9]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if cel_dnomo is not None:
             CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
@@ -63,13 +63,6 @@ class Teksto:
         for vorto in self.vortoj:
             vortaraj_vortoj += self.vortaraj_vortoj_por[vorto]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
-    
-    #def _ricevi_vortarajn_vortojn(self):
-        #cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
-        #vortaraj_vortoj = []
-        #for radiko in self.radikoj:
-            #vortaraj_vortoj += cxefvortoj_el[radiko]
-        #return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
         
     def _dismorfigi(self):
         rezulto = {} # словарь: слово -> список его разборов
@@ -92,21 +85,5 @@ class Teksto:
             if vorto in self.nerekonitaj_vortoj:
                 linioj.append(vorto + '#')
         CelDosiero(dnomo = cel_dnomo).skribi_liniojn(linioj)
-        
-
-if __name__ == '__main__':
-    teksto = Teksto().elsxuti_el_dosieron(dnomo = 'Teksto_1_SL.txt')
-    teksto.prilabori()
-
-    # Сохранить морфологический разбор всех слов текста
-    teksto.skribi_dismorfigon(cel_dnomo = 'Dismorfemo')
-    teksto.skribi_dismorfigon(cel_dnomo = 'Dismorfemo_plendetala', plendetala = True)
-    
-    # Получить словарик для слов из текста
-    teksto.vortareto.save(dnomo = 'Vortareto')
-    
-    # Сохранить словарные слова
-    teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj('Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt')
-    #CelDosiero('Vortaraj_vortoj_4_SL.txt').skribi_vortliston(vortoj)
     
     

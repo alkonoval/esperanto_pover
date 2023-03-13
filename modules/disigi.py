@@ -1,31 +1,33 @@
 import re
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .konstantaro import MORFEMARO, LEKSEMARO
+from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO
 
-EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj, # Специальные слова, могужие употребляться без окончания
-           'N': LEKSEMARO.jn_vortetoj, # Специальные слова в jn-форме
-           'F': MORFEMARO.finajxoj, # Окончания
-           'A': MORFEMARO.afiksoj, # Аффиксы
-           'G': ['o', 'e', 'en', 'i', 'a'], # Соединительная гласная
-           'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
-        }
 # Хорошо бы выделить из специальных слов те, которые 100% не могут употребляться в словообразовании, а только как самостоятельные слова
 # w -> bV не для всех V (перенести такие V в N?)
 # []-x то из V к чему нельзя приписовать окончания
 # x-[] то из V к чему нельзя добавить приставку
-EO_REGULOJ = {'w': ['V', 'bF', 'N', 'bV'],
-              'b': ['V', 'R', 'A', 'bR', 'bA', 'cG'],
-              'c': ['V', 'R', 'A', 'bR', 'bA']
+EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj, # Специальные слова, могужие употребляться без окончания
+           'Vjn': LEKSEMARO.jn_vortetoj, # Специальные слова в jn-форме
+           'F': MORFEMARO.finajxoj, # Окончания
+           'A': MORFEMARO.afiksoj, # Аффиксы
+           'G': ['o', 'e', 'en', 'i', 'a', '-'], # Соединительная гласная
+           'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
+        }
+EO_REGULOJ = {'w': ['V', 'bF', 'Vjn', 'bV'],
+              'b': ['V', 'R', 'A', 'bR', 'bA', 'bV', 'cG'],
+              'c': ['V', 'R', 'A', 'bR', 'bA', 'bV']
               }
+
+# Цифры в составе слова 20a, 15a ?
 
 class Gramatiko:
     """ Леволинейная грамматика для распознавания слов языка
     
     Все нетерминальные символы бывают двух видов: состояния и множества.
-    Символы-состояния обозначаются строчными латинскими буквами, а символы-множества --- заглавными.
+    Символы-состояния обозначаются строчными латинскими буквами, а символы-множества --- строками, начинающимися с заглавной буквы.
     Правила бывают двух видов:
     1) Определяется словаряем base : X -> [str1, str2, ..., str_n],
     который каждому символу-множеству сопоставляет список строк.
@@ -59,9 +61,14 @@ class Gramatiko:
             set_simblo = 'A'
             right_peco in base['A']
         """
-        
-        tipo = regulo[-1]
-        new_state = regulo[0] if len(regulo) > 1 else ''
+        if regulo[0].islower():
+            new_state = regulo[0]
+            tipo = regulo[1:]
+        else:
+            new_state = ''
+            tipo = regulo
+        #tipo = regulo[-1]
+        #new_state = regulo[0] if len(regulo) > 1 else ''
         variantoj = []
         if new_state != '':
             for mor in self.base[tipo]:
@@ -156,13 +163,5 @@ class Dismorfemo:
             if radiko in vortaraj_radikoj:
                 rezulto.append(radiko)
         return forigi_ripetojn_konservante_ordon(rezulto)
-
-if __name__ == '__main__':
-    pass
-    #gram = Gramatiko()
-    #print(gram.disigi('malvirtulo'))
-    #print(gram.disigi('persone'))
-    
-    #print(Dismorfemo('murmuri').disigoj)
     
     

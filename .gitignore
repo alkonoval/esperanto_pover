@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Выходные файлы
+output
+
+# Старые файлы
+old

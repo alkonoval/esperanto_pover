@@ -5,10 +5,12 @@ INPUT_DIR = './input'
 OUTPUT_DIR = './output'
 DATA_DIR = './data'
 for dirname in [OUTPUT_DIR]:
-    if not os.path.exists(dirname)
+    if not os.path.exists(dirname):
         os.mkdir(dirname)
     if not os.path.isdir(dirname):
         pass
+#def ekscii_dir(path):
+    #return os.path.dirname(os.path.abspath(path))
     
 
 diakritajxoj = ["ĉ", "ĝ", "ĥ", "ĵ", "ŝ", "ŭ"]

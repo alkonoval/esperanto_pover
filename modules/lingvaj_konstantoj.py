@@ -1,10 +1,12 @@
 from itertools import product
 
+from .utils import forigi_ripetojn_konservante_ordon
+
 class Morfemaro:
     def __init__(self):
         # Окончания
         self.ordinaraj_vortaraj_finajxoj = ['o', 'a', 'i', 'e']
-        self.vortaraj_finajxoj = self.ordinaraj_vortaraj_finajxoj + ['-', 'oj'] # Окончания у слов в словарном виде
+        self.vortaraj_finajxoj = self.ordinaraj_vortaraj_finajxoj + ['-', 'oj', 'aj'] # Окончания у слов в словарном виде
         #self.postfinajxoj = ['j', 'jn', 'n']
         self.jn_finajxoj = ['oj', 'ojn', 'on', 'aj', 'ajn', 'an'] + ['en']
         self.verbaj_senvortaraj_finajxoj = ['is', 'as', 'os', 'us', 'u']
@@ -71,5 +73,8 @@ class Leksemaro:
         self.jn_vortetoj = self.jn_tabelvortoj + self.n_pronomoj
         self.cxiuj_vortetoj = self.pronomoj + self.rolvortetoj + self.nombraj_vortetoj + self.konjunkcioj + self.komparaj_vortetoj +\
             self.oa_vortecaj_vortetoj + self.e_vortetoj + self.ekkriaj_vortetoj
-        self.cxiuj_vortetoj = list(set(self.cxiuj_vortetoj))
+        self.cxiuj_vortetoj = forigi_ripetojn_konservante_ordon(self.cxiuj_vortetoj)
+        
+        # Цифры
+        self.nombroj = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LEKSEMARO = Leksemaro()
