@@ -20,4 +20,11 @@ def forigi_ripetojn_konservante_ordon(listo):
         if elemento not in rezulto:
             rezulto.append(elemento)
     return rezulto
+
+def listo_sen_certaj_elementoj(listo , elementoj):
+    """Удаляет из списка listo элементы присутствующие в списке elementoj"""
+    rezulto = list(listo)
+    for it in elementoj:
+        rezulto.remove(it)
+    return rezulto
                 

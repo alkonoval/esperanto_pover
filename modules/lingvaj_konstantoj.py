@@ -36,10 +36,11 @@ def produto(list1, list2):
 class Leksemaro:
     def __init__(self):
         # Табличные слова (включая kien, tien, cxien и т.п.)
-        self.tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['a', 'al', 'am', 'e', 'el', 'en', 'es', 'o', 'om', 'u', 'en'])
+        self.tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['a', 'al', 'am', 'e', 'el', 'en', 'es', 'o', 'om', 'u'])
         self.o_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['o'])
         self.au_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['a', 'u'])
         self.oau_tabelvortoj = self.o_tabelvortoj + self.au_tabelvortoj
+        self.ne_oau_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['al', 'am', 'e', 'el', 'en', 'es', 'om'])
         self.es_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['es'])
         self.e_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['e'])
         self.en_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['en'])
@@ -79,6 +80,34 @@ class Leksemaro:
             self.oa_vortecaj_vortetoj + self.e_vortetoj + self.ekkriaj_vortetoj
         self.cxiuj_vortetoj = forigi_ripetojn_konservante_ordon(self.cxiuj_vortetoj)
         
+        
+        
         # Цифры
         self.ciferoj = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LEKSEMARO = Leksemaro()
+
+class Vortetoj:
+    """
+    Специальные слова (слова, могущие употребляться без окончания)
+    
+    Поля:
+    Va --- специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
+    Vp --- специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
+    Vs --- специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
+    Vr --- специальные слова, которые могут быть в начале, конце и ввнутри сложного слова
+    """
+    def __init__(self):
+        self.Va = LEKSEMARO.jn_tabelvortoj + LEKSEMARO.n_pronomoj + LEKSEMARO.oau_tabelvortoj + ['ke', 'cxu', 'se', 'cxar', 'ol', 'la', 'cxi', 'da', 'je', 'malgraux', 'nek', 'des', 'do', 'ja', 'ju']
+        self.Vp = LEKSEMARO.pronomoj + ['kaj', 'aux', 'sed', 'plus', 'minus'] + LEKSEMARO.ne_oau_tabelvortoj +['for', 'po', 'ecx'] + LEKSEMARO.ekkriaj_vortetoj
+        self.Vs = []
+        self.Vr = LEKSEMARO.nombraj_vortetoj + ['al', 'anstataux', 'antaux', 'apud', 'cxe', 'cxirkaux', 'de', 'dum', 'ekster', 'el', 'en', 
+        'gxis', 'inter', 'kontraux', 'krom', 'kun', 'laux', 'per', 'por', 'post', 'preter', 'pri', 'pro', 'sen', 'sub', 'super', 'sur', 'tra', 'trans', 'ambaux', 'ankoraux', 'baldaux', 'hodiaux', 'hieraux', 'morgaux', 'jam', 'jxus', 'nun', 'plu','tuj', 'ajn', 'almenaux', 'ankaux', 'apenaux', 'jen', 'jes', 'kvazaux', 'mem', 'ne', 'nur', 'pli', 'plej', 'preskaux', 'tamen', 'tre', 'tro']
+        
+        self.specoj = [self.Va, self.Vp, self.Vs, self.Vr]
+        self.cxiuj = self.Va + self.Vp + self.Vs + self.Vr
+        self.speco = dict([(x, 'Va') for x in self.Va] +
+                          [(x, 'Vp') for x in self.Vp] +
+                          [(x, 'Vr') for x in self.Vr] +
+                          [(x, 'Vs') for x in self.Vs]
+                          )
+VORTETOJ = Vortetoj()

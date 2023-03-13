@@ -1,25 +1,21 @@
 import re
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
+from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO
 
-Va_vortoj = LEKSEMARO.jn_vortetoj
-Vp_vortoj = []
-Vs_vortoj = []
-#Vr_vortoj = LEKSEMARO.rolvortetoj + LEKSEMARO.nombraj_vortetoj
-Vr_vortoj = LEKSEMARO.cxiuj_vortetoj # Все специальные слова, могущие употребляться без окончания
-EO_BASE = {'Va': Va_vortoj, # Специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
-           'Vp': Vp_vortoj, # Специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
-           'Vs': Vs_vortoj, # Специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
-           'Vr': Vr_vortoj, # Cпециальные слова, которые могут быть внутри сложного слова
+#Vr_vortoj = LEKSEMARO.cxiuj_vortetoj # Все специальные слова, могущие употребляться без окончания
+EO_BASE = {'Va': VORTETOJ.Va, # Специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
+           'Vp': VORTETOJ.Vp, # Специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
+           'Vs': VORTETOJ.Vs, # Специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
+           'Vr': VORTETOJ.Vr, # Cпециальные слова, которые могут быть внутри сложного слова
            'N': [], # Арабские числа # Специальные разбор в функции dividi
            'F': MORFEMARO.finajxoj, # Окончания
            'A': MORFEMARO.afiksoj, # Аффиксы
            'K': MORFEMARO.internaj_literaj_kunligajxoj, # Соединительная гласная или символ
            'S': MORFEMARO.internaj_kunligaj_simboloj, # дефис
-           'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
+           'R': [] # Возможные корни из словаря # EO_BASE['R'] инициализируется внутри класса Dismorfemo
            }
 komencaj_reguloj = ['N', 'Vr', 'Vp', 'Vs', 'Va'] + ['aF', 'bVr', 'bVs']
 limigitaj_reguloj = ['R', 'A', 'Vr', 'N', 'Vp'] + ['bR', 'bA', 'bVr'] # справа может быть соединительная гласная или окончание
