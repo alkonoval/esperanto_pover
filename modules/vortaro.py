@@ -3,7 +3,9 @@ from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 
 def radikigi(vortara_vorto):
-    return senfinajxigi(vortara_vorto, finajxoj = MORFEMARO.vortaraj_finajxoj, esceptoj = LEKSEMARO.cxiuj_vortetoj)
+    return senfinajxigi(vortara_vorto,
+                        finajxoj = MORFEMARO.vortaraj_finajxoj,
+                        esceptoj = MORFEMARO.afiksoj + LEKSEMARO.cxiuj_vortetoj)
 
 class Vortaro:
     def __init__(self, kore = {}):

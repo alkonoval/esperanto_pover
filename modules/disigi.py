@@ -27,12 +27,12 @@ EO_REGULOJ = {'w': ['N', 'Vr', 'Vp', 'Vpa', 'Va'] + ['aF', 'bVr'],
 
 # Вес морфемы каждого типа
 def PEZO(x):
-    if x in ['A', 'F']:
-        return 0.5
-    elif x in ['K']:
-        return 0.7
-    else:
+    if x in ['A', 'Va']:
         return 1
+    elif x in ['K', 'F']:
+        return 2
+    else:
+        return 3
 
 class Gramatiko:
     """ Леволинейная грамматика для распознавания слов языка
@@ -124,7 +124,7 @@ class Gramatiko:
         return rezulto
             
 class Dismorfemo:
-    def __init__(self, vorto, maksimuma_nombro_de_disigoj = 1):
+    def __init__(self, vorto, maksimuma_nombro_de_disigoj = 2):
         self.vorto = vorto.lower()
         self.radikalo = self.ricevi_radikalon() # основа слова
         self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
