@@ -28,10 +28,12 @@ class Teksto:
         
         self.vortareto = BAZA_VORTARO.subvortaro(self.vortaraj_vortoj + self.nerekonitaj_vortoj)
     
-    def spliti_al_vortoj(self, cel_dnomo = None):
+    def spliti_al_vortoj(self, ignori_nombrojn = True, cel_dnomo = None):
         """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
         vortoj = re.findall("[a-z'\-0-9]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
+        if ignori_nombrojn:
+            rezulto = list(filter(lambda x: not x.isdigit(), rezulto))
         if cel_dnomo is not None:
             CelDosiero(cel_dnomo, formatilo = x_igi).skribi_vortliston(rezulto)
         return rezulto

@@ -12,6 +12,10 @@ class Morfemaro:
         self.verbaj_senvortaraj_finajxoj = ['is', 'as', 'os', 'us', 'u']
         self.finajxoj = self.ordinaraj_vortaraj_finajxoj + self.jn_finajxoj + self.verbaj_senvortaraj_finajxoj + ["'"]
         
+        # Соединительная гласная/символ внутри слова
+        self.internaj_literaj_kunligajxoj = ['o', 'e', 'en', 'i', 'a']
+        self.internaj_kunligaj_simboloj = ['-']
+        
         # Аффиксы
         self.oficialaj_sufiksoj = ['acx', 'ad', 'ajx', 'an', 'ant', 'ar', 'at',
                                    'ebl', 'ec', 'eg', 'ej', 'em', 'end', 'er', 'estr', 'et',
@@ -76,5 +80,5 @@ class Leksemaro:
         self.cxiuj_vortetoj = forigi_ripetojn_konservante_ordon(self.cxiuj_vortetoj)
         
         # Цифры
-        self.nombroj = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        self.ciferoj = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LEKSEMARO = Leksemaro()

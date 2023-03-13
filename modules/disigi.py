@@ -5,20 +5,29 @@ from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO
 
-# Хорошо бы выделить из специальных слов те, которые 100% не могут употребляться в словообразовании, а только как самостоятельные слова
-# w -> bV не для всех V (перенести такие V в N?)
-# []-x то из V к чему нельзя приписовать окончания
-# x-[] то из V к чему нельзя добавить приставку
-EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj, # Специальные слова, могужие употребляться без окончания
-           'Vjn': LEKSEMARO.jn_vortetoj, # Специальные слова в jn-форме
+Va_vortoj = LEKSEMARO.jn_vortetoj
+Vp_vortoj = []
+Vs_vortoj = []
+#Vr_vortoj = LEKSEMARO.rolvortetoj + LEKSEMARO.nombraj_vortetoj
+Vr_vortoj = LEKSEMARO.cxiuj_vortetoj # Все специальные слова, могущие употребляться без окончания
+EO_BASE = {'Va': Va_vortoj, # Специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
+           'Vp': Vp_vortoj, # Специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
+           'Vs': Vs_vortoj, # Специальные слова, которые могут быть концом сложного слова, но не могут быть внутри слова
+           'Vr': Vr_vortoj, # Cпециальные слова, которые могут быть внутри сложного слова
+           'N': [], # Арабские числа # Специальные разбор в функции dividi
            'F': MORFEMARO.finajxoj, # Окончания
            'A': MORFEMARO.afiksoj, # Аффиксы
-           'G': ['o', 'e', 'en', 'i', 'a', '-'], # Соединительная гласная
+           'K': MORFEMARO.internaj_literaj_kunligajxoj, # Соединительная гласная или символ
+           'S': MORFEMARO.internaj_kunligaj_simboloj, # дефис
            'R': [] # Для каждого слова подставляется список возможных для него корней из словаря
-        }
-EO_REGULOJ = {'w': ['V', 'bF', 'Vjn', 'bV'],
-              'b': ['V', 'R', 'A', 'bR', 'bA', 'bV', 'cG'],
-              'c': ['V', 'R', 'A', 'bR', 'bA', 'bV']
+           }
+komencaj_reguloj = ['N', 'Vr', 'Vp', 'Vs', 'Va'] + ['aF', 'bVr', 'bVs']
+limigitaj_reguloj = ['R', 'A', 'Vr', 'N', 'Vp'] + ['bR', 'bA', 'bVr'] # справа может быть соединительная гласная или окончание
+ordinaraj_reguloj = limigitaj_reguloj + ['cK', 'cS', 'wS']
+EO_REGULOJ = {'w': komencaj_reguloj,
+              'a': limigitaj_reguloj,
+              'b': ordinaraj_reguloj,
+              'c': limigitaj_reguloj
               }
 
 # Цифры в составе слова 20a, 15a ?
@@ -67,22 +76,14 @@ class Gramatiko:
         else:
             new_state = ''
             tipo = regulo
-        #tipo = regulo[-1]
-        #new_state = regulo[0] if len(regulo) > 1 else ''
         variantoj = []
-        if new_state != '':
-            for mor in self.base[tipo]:
-                sxablono = f'{mor}$'
-                match = re.search(sxablono, peco)
-                if match:
-                    left_peco = re.split(sxablono, peco)[0]
-                    if left_peco != '':
-                        rez = ((left_peco, new_state), (mor, tipo))
-                        variantoj.append(rez)
-        else:
-            for mor in self.base[tipo]:
-                if peco == mor:
-                    rez = (('', new_state), (mor, tipo))
+        sxablonoj = [f'{mor}$' for mor in self.base[tipo]] if tipo != 'N' else ['\d+$']
+        for sxablono in sxablonoj:
+            match = re.search(sxablono, peco)
+            if match:
+                left_peco = peco[:match.start()]
+                if (new_state != '' and left_peco != '') or (new_state == '' and left_peco == ''):
+                    rez = ((left_peco, new_state), (match[0], tipo))
                     variantoj.append(rez)
         return variantoj
     
@@ -137,7 +138,7 @@ class Dismorfemo:
     def __str__(self):
         rezs = []
         for disigo in self.disigoj:
-            out = '-'.join(map(lambda x: x[0], disigo))
+            out = '-'.join(filter(lambda x: x != '-', map(lambda x: x[0], disigo)))
             rezs.append(out)
         return ', '.join(rezs)
     
