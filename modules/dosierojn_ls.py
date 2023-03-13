@@ -3,8 +3,6 @@ import os.path
 
 INPUT_DIR = './input'
 OUTPUT_DIR = './output'
-#INPUT_DIR = '.'
-#OUTPUT_DIR = '.'
 DATA_DIR = './data'
 
 diakritajxoj = ["ĉ", "ĝ", "ĥ", "ĵ", "ŝ", "ŭ"]

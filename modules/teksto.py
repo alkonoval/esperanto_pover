@@ -1,11 +1,11 @@
 import re
 
-from dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from konstantaro import MORFEMARO, LEKSEMARO
-from utils import forigi_ripetojn_konservante_ordon
-from disigi import Dismorfemo
+from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
+from .konstantaro import MORFEMARO, LEKSEMARO
+from .utils import forigi_ripetojn_konservante_ordon
+from .disigi import Dismorfemo
 
-from vortaro import BAZA_VORTARO, Vortaro
+from .vortaro import BAZA_VORTARO, Vortaro
 
 class Teksto:
     

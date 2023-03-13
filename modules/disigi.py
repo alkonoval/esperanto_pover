@@ -1,9 +1,9 @@
 import re
 
-from dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from konstantaro import MORFEMARO, LEKSEMARO
-from utils import senfinajxigi, forigi_ripetojn_konservante_ordon
-from vortaro import BAZA_VORTARO
+from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
+from .konstantaro import MORFEMARO, LEKSEMARO
+from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
+from .vortaro import BAZA_VORTARO
 
 EO_BASE = {'V': LEKSEMARO.cxiuj_vortetoj, # Специальные слова, могужие употребляться без окончания
            'N': LEKSEMARO.jn_vortetoj, # Специальные слова в jn-форме
@@ -100,12 +100,12 @@ class Gramatiko:
             new_peco = vr[0][0]
             new_state = vr[0][1]
             mor_kun_tipo = vr[1]
-            if new_peco is '':
+            if new_peco == '':
                 rez = [mor_kun_tipo]
                 rezulto.append(rez)
             else:
                 rekuro = self.disigi(new_peco, new_state)
-                if rekuro is []:
+                if rekuro == []:
                     continue
                 rez = []
                 for it in rekuro:

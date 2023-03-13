@@ -1,8 +1,8 @@
 import re
 
-from dosierojn_ls import FontDosiero, CelDosiero
-from vortaro import Vortaro
-from utils import forigi_ripetojn_konservante_ordon
+from .dosierojn_ls import FontDosiero, CelDosiero
+from .vortaro import Vortaro
+from .utils import forigi_ripetojn_konservante_ordon
 
 def ricevi_cxefvortojn(dnomo):
     """Прочитать результат программы Sublinio и выделить найденные слова/корни"""

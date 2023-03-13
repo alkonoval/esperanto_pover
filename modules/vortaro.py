@@ -1,6 +1,6 @@
-from dosierojn_ls import FontDosiero, CelDosiero, DATA_DIR
-from konstantaro import MORFEMARO, LEKSEMARO
-from utils import senfinajxigi, forigi_ripetojn_konservante_ordon
+from .dosierojn_ls import FontDosiero, CelDosiero, DATA_DIR
+from .konstantaro import MORFEMARO, LEKSEMARO
+from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 
 def radikigi(vortara_vorto):
     return senfinajxigi(vortara_vorto, finajxoj = MORFEMARO.vortaraj_finajxoj, esceptoj = LEKSEMARO.cxiuj_vortetoj)
