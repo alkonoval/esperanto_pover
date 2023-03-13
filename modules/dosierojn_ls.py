@@ -1,9 +1,15 @@
 """Чтение и записть файлов"""
-import os.path
+import os
 
 INPUT_DIR = './input'
 OUTPUT_DIR = './output'
 DATA_DIR = './data'
+for dirname in [OUTPUT_DIR]:
+    if not os.path.exists(dirname)
+        os.mkdir(dirname)
+    if not os.path.isdir(dirname):
+        pass
+    
 
 diakritajxoj = ["ĉ", "ĝ", "ĥ", "ĵ", "ŝ", "ŭ"]
 Diakritajxoj = ["Ĉ", "Ĝ", "Ĥ", "Ĵ", "Ŝ", "Ŭ"]
@@ -62,7 +68,8 @@ class CelDosiero():
         self.dirnomo = dirnomo
     
     def skribi(self, teksto):
-        dosiero = open(os.path.join(self.dirnomo, self.dnomo), 'w', encoding=self.encoding)
+        path = os.path.abspath(os.path.join(self.dirnomo, self.dnomo))
+        dosiero = open(path, 'w', encoding=self.encoding)
         dosiero.write(self.formatilo(teksto))
         dosiero.close()
     
