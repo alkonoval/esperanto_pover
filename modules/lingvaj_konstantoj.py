@@ -1,4 +1,5 @@
 from itertools import product
+from functools import reduce
 
 from .utils import forigi_ripetojn_konservante_ordon
 
@@ -6,7 +7,7 @@ class Morfemaro:
     def __init__(self):
         # Окончания
         self.ordinaraj_vortaraj_finajxoj = ['o', 'a', 'i', 'e']
-        self.vortaraj_finajxoj = self.ordinaraj_vortaraj_finajxoj + ['-', 'oj', 'aj'] # Окончания у слов в словарном виде
+        self.vortaraj_finajxoj = self.ordinaraj_vortaraj_finajxoj + ['-', '!', 'oj', 'aj'] # Окончания у слов в словарном виде
         #self.postfinajxoj = ['j', 'jn', 'n']
         self.jn_finajxoj = ['oj', 'ojn', 'on', 'aj', 'ajn', 'an'] + ['en']
         self.verbaj_senvortaraj_finajxoj = ['is', 'as', 'os', 'us', 'u']
@@ -40,11 +41,12 @@ class Leksemaro:
         self.o_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['o'])
         self.au_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['a', 'u'])
         self.oau_tabelvortoj = self.o_tabelvortoj + self.au_tabelvortoj
-        self.ne_oau_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['al', 'am', 'e', 'el', 'en', 'es', 'om'])
+        self.ne_oau_om_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['al', 'am', 'e', 'el', 'en', 'es'])
         self.es_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['es'])
         self.e_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['e'])
         self.en_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['en'])
         self.am_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['am'])
+        self.om_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['om'])
         self.alelom_tabelvortoj = produto(['ki', 'ti', 'i', 'cxi', 'neni'], ['al', 'el', 'om'])
         self.jn_tabelvortoj = produto(self.o_tabelvortoj, ['n']) + produto(self.au_tabelvortoj, ['j', 'jn', 'n'])
         
@@ -92,22 +94,24 @@ class Vortetoj:
     
     Поля:
     Va --- специальные слова, которые употребляются только отдельно (не могут быть частью составного слова)
-    Vp --- специальные слова, которые могут быть началом сложного слова, но не могут быть внутри слова
-    Vpa --- специальные слова, которые встречаются либо самостоятельно, либо с окончанием
+    Vp --- специальные слова, которые употреблятся только в начале сложного слова, справа к ним может присоединяться любая морфема
+    Vpl --- специальные слова, которые употреблятся только в начале сложного слова, справа не может присоединяться окончание
+    Vpa --- специальные слова, которые употреблятся только в начале сложного слова, справа может присоединяться только окончание
     Vr --- специальные слова, которые могут быть в начале, конце и ввнутри сложного слова
     """
     def __init__(self):
-        self.Va = LEKSEMARO.jn_tabelvortoj + LEKSEMARO.n_pronomoj + LEKSEMARO.oau_tabelvortoj + ['ke', 'cxu', 'se', 'cxar', 'ol', 'la', 'cxi', 'da', 'je', 'malgraux', 'nek', 'des', 'do', 'ja', 'ju']
-        self.Vpa = LEKSEMARO.pronomoj + ['kaj', 'aux', 'sed', 'plus', 'minus'] + ['po', 'ecx'] + LEKSEMARO.ekkriaj_vortetoj
-        self.Vp = LEKSEMARO.ne_oau_tabelvortoj + ['for']
+        self.Va = LEKSEMARO.jn_tabelvortoj + LEKSEMARO.n_pronomoj + ['ke', 'cxu', 'se', 'cxar', 'ol', 'la', 'cxi', 'da', 'je', 'malgraux', 'nek', 'des', 'do', 'ja', 'ju']
+        self.Vpa = LEKSEMARO.pronomoj + ['kaj', 'aux', 'sed', 'plus', 'minus'] + ['po', 'ecx'] + LEKSEMARO.ekkriaj_vortetoj + LEKSEMARO.ne_oau_om_tabelvortoj
+        self.Vpl = LEKSEMARO.oau_tabelvortoj
+        self.Vp = LEKSEMARO.om_tabelvortoj + ['ajn']
         self.Vr = LEKSEMARO.nombraj_vortetoj + ['al', 'anstataux', 'antaux', 'apud', 'cxe', 'cxirkaux', 'de', 'dum', 'ekster', 'el', 'en', 
-        'gxis', 'inter', 'kontraux', 'krom', 'kun', 'laux', 'per', 'por', 'post', 'preter', 'pri', 'pro', 'sen', 'sub', 'super', 'sur', 'tra', 'trans', 'ambaux', 'ankoraux', 'baldaux', 'hodiaux', 'hieraux', 'morgaux', 'jam', 'jxus', 'nun', 'plu','tuj', 'ajn', 'almenaux', 'ankaux', 'apenaux', 'jen', 'jes', 'kvazaux', 'mem', 'ne', 'nur', 'pli', 'plej', 'preskaux', 'tamen', 'tre', 'tro']
+        'gxis', 'inter', 'kontraux', 'krom', 'kun', 'laux', 'per', 'por', 'post', 'preter', 'pri', 'pro', 'sen', 'sub', 'super', 'sur', 'tra', 'trans', 'ambaux', 'ankoraux', 'baldaux', 'hodiaux', 'hieraux', 'morgaux', 'jam', 'jxus', 'nun', 'plu','tuj', 'almenaux', 'ankaux', 'apenaux', 'jen', 'jes', 'kvazaux', 'mem', 'ne', 'nur', 'pli', 'plej', 'preskaux', 'tamen', 'tre', 'tro', 'for']
         
-        self.specoj = [self.Va, self.Vp, self.Vpa, self.Vr]
-        self.cxiuj = self.Va + self.Vp + self.Vpa + self.Vr
-        self.speco = dict([(x, 'Va') for x in self.Va] +
-                          [(x, 'Vp') for x in self.Vp] +
-                          [(x, 'Vr') for x in self.Vr] +
-                          [(x, 'Vpa') for x in self.Vpa]
-                          )
+        speco = {} # vorteto -> tipo (Va, Vr и т.п.)
+        for nomo, listo in self.__dict__.items():
+            speco.update([(x, nomo) for x in listo])
+        self.speco = speco
+        
+        self.specoj = list(self.speco.keys())
+        self.cxiuj = reduce(lambda x, y: x + y, self.specoj)
 VORTETOJ = Vortetoj()

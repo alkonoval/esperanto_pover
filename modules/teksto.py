@@ -31,7 +31,7 @@ class Teksto:
     
     def spliti_al_vortoj(self, ignori_nombrojn = True, cel_dnomo = None):
         """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
-        vortoj = re.findall("[a-z'\-0-9]+", self.teksto.lower(), flags=re.IGNORECASE)
+        vortoj = re.findall("[a-z'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
             rezulto = list(filter(lambda x: not x.isdigit(), rezulto))
