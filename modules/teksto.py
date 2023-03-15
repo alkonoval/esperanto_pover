@@ -70,7 +70,8 @@ class Teksto:
     def _dismorfigi(self):
         rezulto = {} # словарь: слово -> список его разборов
         for vorto in self.vortoj:
-            rezulto[vorto] = Dismorfemo(vorto)
+            rezulto[vorto] = Dismorfemo(vorto, maksimuma_nombro_de_disigoj = 1) # брать только один разбор
+            #rezulto[vorto] = Dismorfemo(vorto)
         return rezulto
     
     def skribi_dismorfigon(self, cel_dnomo, plendetala = False):
@@ -82,9 +83,14 @@ class Teksto:
     
     def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(self, cel_dnomo):
         linioj = []
+        vortaraj_vortoj = []
         for vorto in self.vortoj:
             for vortara_vorto in self.vortaraj_vortoj_por[vorto]:
-                linioj.append(f'{vorto}\t{vortara_vorto}')
+                if vortara_vorto in vortaraj_vortoj:
+                    continue
+                else:
+                    linioj.append(f'{vorto}\t{vortara_vorto}')
+                    vortaraj_vortoj.append(vortara_vorto)
             if vorto in self.nerekonitaj_vortoj:
                 linioj.append(vorto + '#')
         CelDosiero(dnomo = cel_dnomo).skribi_liniojn(linioj)
