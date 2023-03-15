@@ -33,7 +33,9 @@ def PEZO(x):
     elif x in ['A', 'Va']:
         return 5
     elif x in ['K', 'S']:
-        return 7
+        return 5
+    elif x in ['Vr']:
+        return 9
     else:
         return 10
 
