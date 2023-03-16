@@ -1,5 +1,6 @@
 from modules.teksto import Teksto
 teksto = Teksto().elsxuti_el_dosieron(dnomo = 'Teksto.txt')
+#teksto = Teksto().elsxuti_el_dosieron(dnomo = 'Malvarma duŝo kaj homa sano.txt')
 teksto.prilabori()
 
 # Сохранить морфологический разбор всех слов текста

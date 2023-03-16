@@ -3,7 +3,7 @@ import re
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
 from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
 from .utils import forigi_ripetojn_konservante_ordon
-from .disigi import Dismorfemo
+from .dismorfemigilo import Dismorfemo
 
 from .vortaro import BAZA_VORTARO, Vortaro
 
