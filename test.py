@@ -1,12 +1,12 @@
 import os
 
-# Сохранить vortetoj в словарь
-#from modules.lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ
+# Теситровать vortetoj
+#from modules.lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ, rafini_vorteton
 #from modules.dismorfemigilo import *
 #from modules.dosierojn_ls import CelDosiero
 #cxiuj_vortetoj = LEKSEMARO.cxiuj_vortetoj
-#vorteto_al_speco = VORTETOJ.speco
-##CelDosiero('cxiuj_vortetoj.txt').skribi_vortliston(cxiuj_vortetoj)
+#print(rafini_vorteton('kien'))
+#CelDosiero('cxiuj_vortetoj.txt').skribi_vortliston(cxiuj_vortetoj)
 #CelDosiero('cxiuj_vortetoj.txt').skribi_dict(vorteto_al_speco)
 
 
@@ -17,7 +17,7 @@ import os
 ## Протестировать разбор слова
 from modules.dismorfemigilo import Gramatiko, Dismorfemo
 from modules.dosierojn_ls import x_igi
-vorto = x_igi('kiom')
+vorto = x_igi('kvankam')
 vdis = Dismorfemo(vorto)
 for k, it in vdis.__dict__.items():
     print(k, it)
@@ -32,5 +32,6 @@ print(vdis)
 
 ## Удаление элементов из списка
 #from modules.utils import listo_sen_certaj_elementoj
-#listo = [1, 2, 3]
-#print(listo_sen_certaj_elementoj(listo, [2, 3]), listo)
+#listo1 = [1, 2, 3, 3, 1, 2]
+#listo2 = [3, 4, 1]
+#print(listo1, listo2, listo_sen_certaj_elementoj(listo1, listo2), sep = '\n')

@@ -1,10 +1,11 @@
 import re
 
-def senfinajxigi(vorto, finajxoj, esceptoj):
+def senfinajxigi(vorto, finajxoj, esceptoj = []):
     """Удалить окончание у слова vorto
     
-    finajxoj - возможные окончания
-    esceptoj - слова-исключения
+    Args:
+        finajxoj: возможные окончания
+        esceptoj: слова-исключения
     """
     
     if vorto in esceptoj:
@@ -14,7 +15,7 @@ def senfinajxigi(vorto, finajxoj, esceptoj):
         return re.split(sxablono, vorto)[0]
 
 def forigi_ripetojn_konservante_ordon(listo):
-    """Удалить повторения, сохраняя порядок элементов в списке"""
+    """Возвращает список, полученный из списка listo удалением повторяющихся элементов. При этом исходный порядок элементов списка listo сохраняется"""
     rezulto = []
     for elemento in listo:
         if elemento not in rezulto:
@@ -22,9 +23,6 @@ def forigi_ripetojn_konservante_ordon(listo):
     return rezulto
 
 def listo_sen_certaj_elementoj(listo , elementoj):
-    """Удаляет из списка listo элементы присутствующие в списке elementoj"""
-    rezulto = list(listo)
-    for it in elementoj:
-        rezulto.remove(it)
-    return rezulto
+    """Возвратить список, полученный из списка listo удалением элементов, присутствующих в списке elementoj."""
+    return [x for x in listo if x not in elementoj]
                 

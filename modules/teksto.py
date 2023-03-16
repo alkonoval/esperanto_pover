@@ -1,7 +1,7 @@
 import re
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
+from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon
 from .dismorfemigilo import Dismorfemo
 
@@ -23,7 +23,7 @@ class Teksto:
         
         self.vortaraj_vortoj_por = self._ricevi_vortarajn_vortojn_por()
         
-        self.radikoj = self._ricevi_radikojn()
+        #self.radikoj = self._ricevi_radikojn()
         self.nerekonitaj_vortoj = self._ricevi_nerekonitajn_vortojn()
         self.vortaraj_vortoj = self._ricevi_vortarajn_vortojn()
         
@@ -43,19 +43,21 @@ class Teksto:
         rezulto = [vorto for vorto in self.dismorfigo.keys() if self.dismorfigo[vorto].disigoj == []]
         return forigi_ripetojn_konservante_ordon(rezulto)
     
-    def _ricevi_radikojn(self):
-        radikoj = []
-        for vorto in self.vortoj:
-            vortradikoj = self.dismorfigo[vorto].radikoj
-            radikoj += vortradikoj
-        return radikoj
+    #def _ricevi_radikojn(self):
+        #radikoj = []
+        #for vorto in self.vortoj:
+            #vortradikoj = self.dismorfigo[vorto].radikoj
+            #radikoj += vortradikoj
+        #return radikoj
     
     def _ricevi_vortarajn_vortojn_por(self):
         cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
-            vortradikoj = self.dismorfigo[vorto].radikoj
+            vortinternaj_vortetoj = self.dismorfigo[vorto].vortetoj
             vortaraj_vortoj_por_vorto = []
+            vortaraj_vortoj_por_vorto += vortinternaj_vortetoj
+            vortradikoj = self.dismorfigo[vorto].radikoj
             for radiko in vortradikoj:
                 vortaraj_vortoj_por_vorto += cxefvortoj_el[radiko]
             vortaraj_vortoj_por[vorto] = forigi_ripetojn_konservante_ordon(vortaraj_vortoj_por_vorto)
@@ -92,7 +94,7 @@ class Teksto:
                     linioj.append(f'{vorto}\t{vortara_vorto}')
                     vortaraj_vortoj.append(vortara_vorto)
             if vorto in self.nerekonitaj_vortoj:
-                linioj.append(vorto + '#')
+                linioj.append(f'{vorto}#\t{rafini_vorton(vorto)}')
         CelDosiero(dnomo = cel_dnomo).skribi_liniojn(linioj)
     
     

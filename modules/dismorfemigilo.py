@@ -2,7 +2,7 @@ import re
 from functools import reduce
 
 from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ
+from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ, rafini_vorton
 from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO
 
@@ -12,7 +12,7 @@ EO_BASE = {'Va': VORTETOJ.Va, # VORTETOJ - слова, которые не тр�
            'Vpl': VORTETOJ.Vpl,
            'Vpa': VORTETOJ.Vpa,
            'Vr': VORTETOJ.Vr,
-           'N': [], # Арабские числа # Специальные разбор в функции dividi
+           'N': [], # Арабские числа # Специальные разбор в функции Gramatiko.dividi
            'F': MORFEMARO.finajxoj, # Окончания
            'A': MORFEMARO.afiksoj, # Аффиксы
            'K': MORFEMARO.internaj_literaj_kunligajxoj, # Соединительная гласная или символ
@@ -140,6 +140,7 @@ class Dismorfemo:
         self.disigoj = self.senlimigaj_disigoj[:maksimuma_nombro_de_disigoj]
         
         self.radikoj = self.ricevi_radikojn()
+        self.vortetoj = self.ricevi_vortetojn()
     
     @staticmethod
     def pezo(disigo):
@@ -157,12 +158,28 @@ class Dismorfemo:
             rezs.append(out + f'({Dismorfemo.pezo(disigo)})')
         return ', '.join(rezs)
     
-    def ricevi_radikojn(self):
+    def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
+        """
+        Получить список морфем из разбора, тип которых удовлетворяет уcловию  kondicho_por_morfema_tipo
+        
+        Args:
+            kondicho_por_morfema_tipo: одноместная функция из множества EO_BASE.keys() в bool
+        """
+        
         rezulto = []
         for disigo in self.disigoj:
-            radikoj = [x[0] for x in disigo if x[1] == 'R']
+            radikoj = [x[0] for x in disigo if kondicho_por_morfema_tipo(x[1])]
             rezulto += radikoj
         return rezulto
+    
+    def ricevi_radikojn(self):
+        return self.ricevi_morfemojn(lambda x: x == 'R')
+    
+    def ricevi_vortetojn(self):
+        """Получить все специальные слова, встречающиеся в разборе. При этом удаляются постокончания -j, -n, -jn."""
+        vortetoj = self.ricevi_morfemojn(lambda x: x[0] == 'V')
+        rafinitaj_vortetoj = list(map(rafini_vorton, vortetoj))
+        return forigi_ripetojn_konservante_ordon(rafinitaj_vortetoj)
                         
     def ricevi_radikalon(self):
         rezulto = senfinajxigi(self.vorto, finajxoj = MORFEMARO.finajxoj, esceptoj = LEKSEMARO.cxiuj_vortetoj)
