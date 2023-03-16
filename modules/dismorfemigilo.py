@@ -158,6 +158,13 @@ class Dismorfemo:
             rezs.append(out + f'({Dismorfemo.pezo(disigo)})')
         return ', '.join(rezs)
     
+    def detala_info(self):
+        rezulto = ''
+        for key, it in self.__dict__.items():
+            rezulto += f'{key} {it}\n'
+        rezulto += str(self)
+        return rezulto
+    
     def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
         """
         Получить список морфем из разбора, тип которых удовлетворяет уcловию  kondicho_por_morfema_tipo
