@@ -1,9 +1,8 @@
 import re
 from functools import reduce
 
-from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ, rafini_vorton
-from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
+from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ, rafini_vorton
+from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
 from .vortaro import BAZA_VORTARO
 
 # Виды морфем

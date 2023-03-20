@@ -1,11 +1,7 @@
 from itertools import product
-from functools import reduce
 
-from .utils import (
-    forigi_ripetojn_konservante_ordon,
-    listo_sen_certaj_elementoj,
-    senfinajxigi,
-)
+from .utils import (forigi_ripetojn_konservante_ordon,
+                    listo_sen_certaj_elementoj, senfinajxigi)
 
 
 def produto(list1, list2):

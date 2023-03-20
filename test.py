@@ -1,4 +1,6 @@
-import os
+## Протестировать разбор слова
+from modules.dismorfemigilo import Dismorfemo
+from modules.dosierojn_ls import x_igi
 
 # Теситровать vortetoj
 # from modules.lingvaj_konstantoj import MORFEMARO, LEKSEMARO, VORTETOJ, rafini_vorteton
@@ -14,9 +16,6 @@ import os
 # from modules.vortaro import BAZA_VORTARO
 # BAZA_VORTARO.save('Baza_vortaro')
 
-## Протестировать разбор слова
-from modules.dismorfemigilo import Gramatiko, Dismorfemo
-from modules.dosierojn_ls import x_igi
 
 vorto = x_igi("kvankam")
 vdis = Dismorfemo(vorto)

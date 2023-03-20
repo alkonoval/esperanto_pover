@@ -1,6 +1,6 @@
-from .dosierojn_ls import FontDosiero, CelDosiero, DATA_DIR, x_igi
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO
-from .utils import senfinajxigi, forigi_ripetojn_konservante_ordon
+from .dosierojn_ls import DATA_DIR, CelDosiero, FontDosiero
+from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
+from .utils import senfinajxigi
 
 
 def radikigi(vortara_vorto):

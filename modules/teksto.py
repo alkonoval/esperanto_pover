@@ -1,10 +1,9 @@
 import re
 
-from .dosierojn_ls import FontDosiero, CelDosiero, x_igi, DATA_DIR
-from .lingvaj_konstantoj import MORFEMARO, LEKSEMARO, rafini_vorton
-from .utils import forigi_ripetojn_konservante_ordon
 from .dismorfemigilo import Dismorfemo
-
+from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
+from .lingvaj_konstantoj import rafini_vorton
+from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import BAZA_VORTARO, Vortaro
 
 
