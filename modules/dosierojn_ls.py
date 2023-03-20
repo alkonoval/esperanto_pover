@@ -78,20 +78,16 @@ class FontDosiero:
 
     def legi(self):
         """Прочитать файл, результат чтения выдать как одну большую строку"""
-        dosiero = open(
-            os.path.join(self.dirnomo, self.dnomo), "r", encoding=self.encoding
-        )
-        rezulto = self.formatilo(dosiero.read())
-        dosiero.close()
+        dvojo = os.path.join(self.dirnomo, self.dnomo)
+        with open(dvojo, "r", encoding=self.encoding) as dosiero:
+            rezulto = self.formatilo(dosiero.read())
         return rezulto
 
     def legi_liniojn(self):
         """Прочитать файл, результат чтения выдать как одну большую строку"""
-        dosiero = open(
-            os.path.join(self.dirnomo, self.dnomo), "r", encoding=self.encoding
-        )
-        rezulto = [self.formatilo(linio) for linio in dosiero.readlines()]
-        dosiero.close()
+        dvojo = os.path.join(self.dirnomo, self.dnomo)
+        with open(dvojo, "r", encoding=self.encoding) as dosiero:
+            rezulto = [self.formatilo(linio) for linio in dosiero.readlines()]
         return rezulto
 
     def legi_vortliston(self):
@@ -121,9 +117,8 @@ class CelDosiero:
 
     def skribi(self, teksto):
         path = os.path.abspath(os.path.join(self.dirnomo, self.dnomo))
-        dosiero = open(path, "w", encoding=self.encoding)
-        dosiero.write(self.formatilo(teksto))
-        dosiero.close()
+        with open(path, "w", encoding=self.encoding) as dosiero:
+            dosiero.write(self.formatilo(teksto))
 
     def skribi_liniojn(self, linioj):
         output = "\n".join(linioj)
