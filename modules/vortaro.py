@@ -1,4 +1,6 @@
-from .dosierojn_ls import DATA_DIR, CelDosiero, FontDosiero
+from pathlib import Path
+
+from .dosierojn_ls import CelDosiero, FontDosiero
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
@@ -19,7 +21,7 @@ class Vortaro:
 
     def elsxuti_el_dosieron(self, dnomo):
         """Считать словарь из файла"""
-        linioj = FontDosiero(dnomo, dirnomo=DATA_DIR).legi_liniojn()
+        linioj = FontDosiero(dnomo).legi_liniojn()
         for row in linioj:
             kamp_num = 3
             # split = eniga_formatilo(row.strip()).split('\t', maxsplit=2)
@@ -107,7 +109,7 @@ class Vortaro:
 
 
 # Загрузить словарь из файла
-BAZA_VORTARO = Vortaro().elsxuti_el_dosieron("bazavortaro.txt")
+BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(Path("data") / "bazavortaro.txt")
 
 if __name__ == "__main__":
     # Сохранить весь словарь в формате html
