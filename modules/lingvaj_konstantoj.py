@@ -1,11 +1,17 @@
 from itertools import product
 
-from .utils import (forigi_ripetojn_konservante_ordon,
-                    listo_sen_certaj_elementoj, senfinajxigi)
+from .utils import (
+    forigi_ripetojn_konservante_ordon,
+    listo_sen_certaj_elementoj,
+    senfinajxigi,
+)
 
 
 def produto(list1, list2):
-    """Список полученный попарной конкатенацией всех элементов из списоков list1 и list2"""
+    """
+    Список полученный попарной конкатенацией всех элементов из списоков
+    list1 и list2
+    """
     return list(map(lambda x: "".join(x), product(list1, list2)))
 
 
@@ -13,12 +19,13 @@ class Morfemaro:
     def __init__(self):
         # Окончания
         self.ordinaraj_vortaraj_finajxoj = ["o", "a", "i", "e"]
+        # Окончания у слов в словарном виде
         self.vortaraj_finajxoj = self.ordinaraj_vortaraj_finajxoj + [
             "-",
             "!",
             "oj",
             "aj",
-        ]  # Окончания у слов в словарном виде
+        ]
         self.postfinajxoj = ["j", "jn", "n"]
         self.jn_finajxoj = produto(["o", "a"], self.postfinajxoj) + ["en"]
         self.verbaj_senvortaraj_finajxoj = ["is", "as", "os", "us", "u"]
@@ -175,6 +182,7 @@ class Leksemaro:
             "nul",
         ]
         # Союзы
+        # konjunkcioj
         self.kunligaj_vortetoj = [
             "kaj",
             "aux",
@@ -182,7 +190,8 @@ class Leksemaro:
             "plus",
             "minus",
             "nek",
-        ]  # konjunkcioj
+        ]
+        # subjunkcioj
         self.frazenkondukaj_vortetoj = [
             "ke",
             "cxu",
@@ -194,7 +203,7 @@ class Leksemaro:
             "kvankam",
             "kvazaux",
             "ol",
-        ]  # subjunkcioj
+        ]
         self.konjunkcioj = self.kunligaj_vortetoj + self.frazenkondukaj_vortetoj
         # Сравнительные частицы
         self.komparaj_vortetoj = ["kiel", "ol"]
@@ -259,9 +268,8 @@ class Leksemaro:
             + self.e_vortetoj
             + self.ekkriaj_vortetoj
         )
-        self.vortetoj = forigi_ripetojn_konservante_ordon(
-            self.vortetoj
-        )  # включая kien, tien и т.п.
+        # включая kien, tien и т.п.
+        self.vortetoj = forigi_ripetojn_konservante_ordon(self.vortetoj)
 
         self.jn_vortetoj = self.jn_tabelvortoj + self.n_pronomoj
         self.ne_jn_vortetoj = listo_sen_certaj_elementoj(

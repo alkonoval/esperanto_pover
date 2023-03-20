@@ -17,9 +17,8 @@ class Teksto:
 
     def prilabori(self):
         self.vortoj = self.spliti_al_vortoj()
-        self.senlimita_dismorfigo = (
-            self._dismorfigi()
-        )  # словарь: слово -> список его разборов
+        # словарь: слово -> список его разборов
+        self.senlimita_dismorfigo = self._dismorfigi()
         self.dismorfigo = self.senlimita_dismorfigo
 
         self.vortaraj_vortoj_por = self._ricevi_vortarajn_vortojn_por()
@@ -33,7 +32,10 @@ class Teksto:
         )
 
     def spliti_al_vortoj(self, ignori_nombrojn=True, cel_dnomo=None):
-        """Выдать слова, встерчающиеся в тексте и записать из в файл cel_dnomo (если требуется)"""
+        """
+        Выдать слова, встречающиеся в тексте и записать их в файл cel_dnomo
+        (если требуется)
+        """
         vortoj = re.findall("[a-z'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
@@ -79,11 +81,11 @@ class Teksto:
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
 
     def _dismorfigi(self):
-        rezulto = {}  # словарь: слово -> список его разборов
+        # словарь: слово -> список его разборов
+        rezulto = {}
         for vorto in self.vortoj:
-            rezulto[vorto] = Dismorfemo(
-                vorto, maksimuma_nombro_de_disigoj=1
-            )  # брать только один разбор
+            # брать только один разбор
+            rezulto[vorto] = Dismorfemo(vorto, maksimuma_nombro_de_disigoj=1)
             # rezulto[vorto] = Dismorfemo(vorto)
         return rezulto
 

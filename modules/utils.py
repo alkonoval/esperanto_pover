@@ -17,7 +17,10 @@ def senfinajxigi(vorto, finajxoj, esceptoj=[]):
 
 
 def forigi_ripetojn_konservante_ordon(listo):
-    """Возвращает список, полученный из списка listo удалением повторяющихся элементов. При этом исходный порядок элементов списка listo сохраняется"""
+    """
+    Возвращает список, полученный из списка listo удалением повторяющихся элементов.
+    При этом исходный порядок элементов списка listo сохраняется
+    """
     rezulto = []
     for elemento in listo:
         if elemento not in rezulto:
@@ -26,5 +29,8 @@ def forigi_ripetojn_konservante_ordon(listo):
 
 
 def listo_sen_certaj_elementoj(listo, elementoj):
-    """Возвратить список, полученный из списка listo удалением элементов, присутствующих в списке elementoj."""
+    """
+    Возвратить список, полученный из списка listo удалением элементов,
+    присутствующих в списке elementoj.
+    """
     return [x for x in listo if x not in elementoj]

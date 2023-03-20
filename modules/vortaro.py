@@ -14,7 +14,8 @@ def radikigi(vortara_vorto):
 class Vortaro:
     def __init__(self, kore={}):
         self.kore = kore
-        self.nomo_por_None = "@ не определено"  # выводится в качестве значения слова, если значение слова не определено
+        # выводится в качестве значения слова, если значение слова не определено
+        self.nomo_por_None = "@ не определено"
 
     def elsxuti_el_dosieron(self, dnomo):
         """Считать словарь из файла"""
