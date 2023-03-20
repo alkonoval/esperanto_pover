@@ -109,7 +109,9 @@ class Vortaro:
 
 
 # Загрузить словарь из файла
-BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(Path("data") / "bazavortaro.txt")
+BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(
+    Path(__file__).parent / ".." / "data" / "bazavortaro.txt"
+)
 
 if __name__ == "__main__":
     # Сохранить весь словарь в формате html
