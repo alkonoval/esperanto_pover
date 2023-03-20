@@ -70,23 +70,20 @@ def sen_x_igi(teksto):
 class FontDosiero:
     """Файл для чтения"""
 
-    def __init__(self, dnomo, encoding="utf-8-sig", dirnomo=INPUT_DIR, formatilo=x_igi):
+    def __init__(self, dnomo, encoding="utf-8-sig", formatilo=x_igi):
         self.dnomo = dnomo
         self.encoding = encoding
         self.formatilo = formatilo
-        self.dirnomo = dirnomo
 
     def legi(self):
         """Прочитать файл, результат чтения выдать как одну большую строку"""
-        dvojo = os.path.join(self.dirnomo, self.dnomo)
-        with open(dvojo, "r", encoding=self.encoding) as dosiero:
+        with open(self.dnomo, "r", encoding=self.encoding) as dosiero:
             rezulto = self.formatilo(dosiero.read())
         return rezulto
 
     def legi_liniojn(self):
         """Прочитать файл, результат чтения выдать как одну большую строку"""
-        dvojo = os.path.join(self.dirnomo, self.dnomo)
-        with open(dvojo, "r", encoding=self.encoding) as dosiero:
+        with open(self.dnomo, "r", encoding=self.encoding) as dosiero:
             rezulto = [self.formatilo(linio) for linio in dosiero.readlines()]
         return rezulto
 
