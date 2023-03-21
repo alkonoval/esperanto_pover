@@ -166,8 +166,35 @@ class Gramatiko:
                 rezulto += rez
         return rezulto
 
+class Disigo(list):
+    """ Разбор слова на морфемы в виде: [(mor_1, tip_n), ..., (mor_n, tip_n)],
+    где mor_1, ..., mor_n - морфемы (части слова),
+    а tip_1, ..., tip_2 - соответствующие тыпы морфемы из EO_BASE.keys()
+    """
+    def __str__(self):
+        """ mor_1-mor_2-...-mor_n """
+        return "-".join(filter(lambda x: x != "-", map(lambda x: x[0], self)))
+    
+    def pezo(self):
+        """ Получить вес разбора слова.
+            Разборы слова, которые имееют меньший вес, считаются более "правильными".
+        """
+        return reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
+    
+    def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
+        """
+        Получить список морфем из разбора, тип которых удовлетворяет уcловию
+        kondicho_por_morfema_tipo
+
+        Args:
+            kondicho_por_morfema_tipo: одноместная функция из множества
+            EO_BASE.keys() в bool
+        """
+        return [x[0] for x in self if kondicho_por_morfema_tipo(x[1])]
 
 class Dismorfemo:
+    """ Все возможные разборы слова на морфемы """
+
     def __init__(self, vorto, maksimuma_nombro_de_disigoj=2):
         self.vorto = vorto.lower()
         self.radikalo = self.ricevi_radikalon()  # основа слова
@@ -175,15 +202,13 @@ class Dismorfemo:
         self.gramatiko = self.ricevi_tauxgan_gramatikon()
 
         self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
-        self.senlimigaj_disigoj.sort(key=Dismorfemo.pezo)
+        self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
+        self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
         self.disigoj = self.senlimigaj_disigoj[:maksimuma_nombro_de_disigoj]
+        self.plejbona_disigo = self.disigoj[0] if self.disigoj != [] else None
 
         self.radikoj = self.ricevi_radikojn()
         self.vortetoj = self.ricevi_vortetojn()
-
-    @staticmethod
-    def pezo(disigo):
-        return reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), disigo))
 
     def ricevi_tauxgan_gramatikon(self):
         baseR = dict(EO_BASE)
@@ -193,8 +218,7 @@ class Dismorfemo:
     def __str__(self):
         rezs = []
         for disigo in self.senlimigaj_disigoj:
-            out = "-".join(filter(lambda x: x != "-", map(lambda x: x[0], disigo)))
-            rezs.append(out + f"({Dismorfemo.pezo(disigo)})")
+            rezs.append(f"{disigo}({disigo.pezo()})")
         return ", ".join(rezs)
 
     def detala_info(self):
@@ -205,19 +229,10 @@ class Dismorfemo:
         return rezulto
 
     def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
-        """
-        Получить список морфем из разбора, тип которых удовлетворяет уcловию
-        kondicho_por_morfema_tipo
-
-        Args:
-            kondicho_por_morfema_tipo: одноместная функция из множества
-            EO_BASE.keys() в bool
-        """
-
         rezulto = []
         for disigo in self.disigoj:
-            radikoj = [x[0] for x in disigo if kondicho_por_morfema_tipo(x[1])]
-            rezulto += radikoj
+            morfemoj = disigo.ricevi_morfemojn(kondicho_por_morfema_tipo)
+            rezulto += morfemoj
         return rezulto
 
     def ricevi_radikojn(self):

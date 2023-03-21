@@ -133,3 +133,6 @@ output
 
 # Старые файлы
 old
+
+# Файлы VSCodium
+.vscode
