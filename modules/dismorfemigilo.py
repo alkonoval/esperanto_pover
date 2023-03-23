@@ -17,8 +17,10 @@ EO_BASE = {
     "N": [],
     # Окончания
     "F": MORFEMARO.finajxoj,
-    # Аффиксы
-    "A": MORFEMARO.afiksoj,
+    # Приставки
+    "Ap": MORFEMARO.prefiksoj,
+    # Суффиксы
+    "As": MORFEMARO.sufiksoj,
     # Соединительная гласная или символ
     "K": MORFEMARO.internaj_literaj_kunligajxoj,
     # дефис
@@ -31,20 +33,20 @@ EO_REGULOJ = {
     # начальное состояние
     "w": ["N", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bVr"],
     # состояние после окончания
-    "a": ["N", "R", "A", "Vr", "Vp", "Vpa"] + ["bR", "bA", "bVr"] + ["dS"],
+    "a": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpa"] + ["bR", "bAs", "bAp", "bVr"] + ["dS"],
     # состояние после корня или корнеподобной морфемы
-    "b": ["N", "R", "A", "Vr", "Vp", "Vpl"] + ["bR", "bA", "bVr"] + ["cK", "dS"],
+    "b": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"] + ["cK", "dS"],
     # состояние после соединительной гласной
-    "c": ["N", "R", "A", "Vr", "Vp", "Vpl"] + ["bR", "bA", "bVr"],
+    "c": ["N", "R", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"],
     # состояние поcле дефиса
-    "d": ["N", "R", "A", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bA", "bVr"],
+    "d": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bAs", "bAp", "bVr"],
 }
 
 # Вес морфемы каждого типа
 def PEZO(x):
     if x in ["F"]:
         return 1
-    elif x in ["A", "Va", "Vpa"]:
+    elif x in ["Ap", "As", "Va", "Vpa"]:
         return 5
     elif x in ["K", "S"]:
         return 5
@@ -179,7 +181,14 @@ class Disigo(list):
         """ Получить вес разбора слова.
             Разборы слова, которые имееют меньший вес, считаются более "правильными".
         """
-        return reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
+        # сумма весов морфем
+        rezulto = reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
+        # штраф за расположение морфем
+        puno = 0
+        # если слово начинается с суффикса, то вес этого суффикса дополняется до веса корня
+        puno += PEZO('R') - PEZO('As') if self[0][1] == 'As' else 0
+        rezulto += puno
+        return rezulto 
     
     def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
         """
