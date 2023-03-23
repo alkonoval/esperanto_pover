@@ -6,9 +6,14 @@ from modules.lingvaj_konstantoj import VORTETOJ
 
 class TestClient(TestCase):
     def setUp(self):
-        pass
+        # слова, которые по разным причинам разбираются некорректно
+        self.malbonaj_vortoj = [
+            "ĉielo",
+            "esperante",
+            "georgia"
+        ]
     def test_malfacilajn_vortojn(self):
-        self.gxustaj_disigoj = {
+        gxustaj_disigoj = {
             "supreniranta" : "supr-en-ir-ant-a",
             "homamaso" : "hom-amas-o",
             "homamaso" : "hom-amas-o",
@@ -24,27 +29,24 @@ class TestClient(TestCase):
             "20-sekunda" : "20-sekund-a",
             "arbetaro" : "arb-et-ar-o",
             "disiradis" : "dis-ir-ad-is",
+            "filineton" : "fil-in-et-on",
         }
-        for vorto, gxusta_disigo in self.gxustaj_disigoj.items():
+        for vorto, gxusta_disigo in gxustaj_disigoj.items():
             vorto = x_igi(vorto)
             vdis = Dismorfemo(vorto)
             disigo = sen_x_igi(str(vdis.plejbona_disigo))
             self.assertEqual(disigo, gxusta_disigo)
-    def test_malbonajn_vortojn(self):
-        """Напечатать разборы слов,
-        которые разборщик предположительно разбирает неправильно
+            self.assertEqual(len(vdis.disigoj), 1) # есть только один хороший разбор
+    def test_multsignifajn_vortojn(self):
+        """ Протестировать слова, имеющие больше одного корректного разбора
         """
-        malbonaj_vortoj = [
-            "pikradetoj",
-            "ĉielo",
-            "filineton",
-            "esperante",
-            "georgia"
-        ]
-        for vorto in malbonaj_vortoj:
+        gxustaj_disigoj = {
+            "pikradetoj" : set(["pik-rad-et-oj", "pi-krad-et-oj"]),
+        }
+        for vorto in gxustaj_disigoj.keys():
             vdis = Dismorfemo(x_igi(vorto))
-            disigoj = sen_x_igi(str(vdis))
-            print(vorto, disigoj)
+            disigoj = set(map(lambda x: str(x), vdis.disigoj))
+            self.assertEqual(disigoj, gxustaj_disigoj[vorto])
 
     def test_vortetojn(self):
         for vorto in VORTETOJ.cxiuj:
