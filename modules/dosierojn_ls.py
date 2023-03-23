@@ -1,18 +1,7 @@
 """Чтение и запись файлов"""
-import os
-
-INPUT_DIR = "./input"
-OUTPUT_DIR = "./output"
-DATA_DIR = "./data"
-for dirname in [OUTPUT_DIR]:
-    os.makedirs(dirname, exist_ok=True)
-# def ekscii_dir(path):
-# return os.path.dirname(os.path.abspath(path))
-
 
 diakritajxoj = ["ĉ", "ĝ", "ĥ", "ĵ", "ŝ", "ŭ"]
 Diakritajxoj = ["Ĉ", "Ĝ", "Ĥ", "Ĵ", "Ŝ", "Ŭ"]
-
 
 def x_igi(teksto):
     rez = teksto
@@ -67,20 +56,20 @@ def sen_x_igi(teksto):
 class FontDosiero:
     """Файл для чтения"""
 
-    def __init__(self, dnomo, encoding="utf-8-sig", formatilo=x_igi):
-        self.dnomo = dnomo
+    def __init__(self, dvojo, encoding="utf-8-sig", formatilo=x_igi):
+        self.dvojo = dvojo
         self.encoding = encoding
         self.formatilo = formatilo
 
     def legi(self):
         """Прочитать файл, результат чтения выдать как одну большую строку"""
-        with open(self.dnomo, "r", encoding=self.encoding) as dosiero:
+        with open(self.dvojo, "r", encoding=self.encoding) as dosiero:
             rezulto = self.formatilo(dosiero.read())
         return rezulto
 
     def legi_liniojn(self):
-        """Прочитать файл, результат чтения выдать как одну большую строку"""
-        with open(self.dnomo, "r", encoding=self.encoding) as dosiero:
+        """Прочитать файл, результат чтения выдать как list строк"""
+        with open(self.dvojo, "r", encoding=self.encoding) as dosiero:
             rezulto = [self.formatilo(linio) for linio in dosiero.readlines()]
         return rezulto
 
@@ -101,17 +90,13 @@ class FontDosiero:
 class CelDosiero:
     """Файл для записи"""
 
-    def __init__(
-        self, dnomo, encoding="utf-8", dirnomo=OUTPUT_DIR, formatilo=sen_x_igi
-    ):
-        self.dnomo = dnomo
+    def __init__(self, dvojo, encoding="utf-8", formatilo=sen_x_igi):
+        self.dvojo = dvojo
         self.encoding = encoding
         self.formatilo = formatilo
-        self.dirnomo = dirnomo
 
     def skribi(self, teksto):
-        path = os.path.abspath(os.path.join(self.dirnomo, self.dnomo))
-        with open(path, "w", encoding=self.encoding) as dosiero:
+        with open(self.dvojo, "w", encoding=self.encoding) as dosiero:
             dosiero.write(self.formatilo(teksto))
 
     def skribi_liniojn(self, linioj):

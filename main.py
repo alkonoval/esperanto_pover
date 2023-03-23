@@ -4,8 +4,6 @@ from pathlib import Path
 from modules.teksto import Teksto
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
-
-
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument(
@@ -17,21 +15,23 @@ def parse_args():
     )
     return parser.parse_args()
 
-
 if __name__ == "__main__":
     args = parse_args()
 
-    teksto = Teksto().elsxuti_el_dosieron(dnomo=args.filename)
+    OUTPUT_DIR = Path("./output")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
     teksto.prilabori()
 
     # Сохранить морфологический разбор всех слов текста
-    teksto.skribi_dismorfigon(cel_dnomo="Dismorfemo")
-    teksto.skribi_dismorfigon(cel_dnomo="Dismorfemo_plendetala", plendetala=True)
+    teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo")
+    teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo_plendetala", plendetala=True)
 
     # Получить словарик для слов из текста
-    teksto.vortareto.save(dnomo="Vortareto")
+    teksto.vortareto.save(dvojo = OUTPUT_DIR / "Vortareto")
 
     # Сохранить словарные слова
     teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-        "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
+        OUTPUT_DIR / "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
     )

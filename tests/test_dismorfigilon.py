@@ -28,6 +28,24 @@ class TestClient(TestCase):
             vdis = Dismorfemo(vorto)
             disigo = sen_x_igi(str(vdis.plejbona_disigo))
             self.assertEqual(disigo, gxusta_disigo)
+    def test_malbonajn_vortojn(self):
+        """Напечатать разборы слов,
+        которые разборщик предположительно разбирает неправильно
+        """
+        malbonaj_vortoj = [
+            "pikradetoj",
+            "ĉielo",
+            "filineton",
+            "arbetaro",
+            "esperante",
+            "disiradis",
+            "georgia"
+        ]
+        for vorto in malbonaj_vortoj:
+            vdis = Dismorfemo(x_igi(vorto))
+            disigoj = sen_x_igi(str(vdis))
+            print(vorto, disigoj)
+
     def test_vortetojn(self):
         for vorto in VORTETOJ.cxiuj:
             vdis = Dismorfemo(vorto)
