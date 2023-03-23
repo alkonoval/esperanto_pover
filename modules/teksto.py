@@ -8,6 +8,8 @@ from .vortaro import BAZA_VORTARO, Vortaro
 
 
 class Teksto:
+    """Класс для обработки текста"""
+
     def __init__(self, teksto=""):
         self.teksto = x_igi(teksto)
 
@@ -16,88 +18,74 @@ class Teksto:
         return self
 
     def prilabori(self):
-        self.vortoj = self.spliti_al_vortoj()
-        # словарь: слово -> список его разборов
-        self.senlimita_dismorfigo = self._dismorfigi()
-        self.dismorfigo = self.senlimita_dismorfigo
-
-        self.vortaraj_vortoj_por = self._ricevi_vortarajn_vortojn_por()
-
-        # self.radikoj = self._ricevi_radikojn()
-        self.nerekonitaj_vortoj = self._ricevi_nerekonitajn_vortojn()
-        self.vortaraj_vortoj = self._ricevi_vortarajn_vortojn()
-
+        # список всех слов (без повторений), встречающихся в тексте 
+        self.vortoj = self.__spliti_al_vortoj() 
+        # dict: слово из текста -> класс с морфологическими разборами для него
+        self.dismorfigo_por = self.__dismorfigi()
+        # dict: слово из текста -> список слов из словаря, которые встречаются в этом слове в качестве корня
+        self.vortaraj_vortoj_por = self.__ricevi_vortarajn_vortojn_por()
+        # список слов из текста, для которых морфологический разбор не дал результатов
+        self.nerekonitaj_vortoj = self.__ricevi_nerekonitajn_vortojn()
+        # список слов из словаря, которые встречаются в тексте в качестве корней
+        self.vortaraj_vortoj = self.__ricevi_vortarajn_vortojn()
+        # словарик для текста
         self.vortareto = BAZA_VORTARO.subvortaro(
             self.nerekonitaj_vortoj + self.vortaraj_vortoj
         )
 
-    def spliti_al_vortoj(self, ignori_nombrojn=True, dvojo=None):
-        """
-        Выдать слова, встречающиеся в тексте и записать их в файл dvojo
-        (если требуется)
-        """
+    def __spliti_al_vortoj(self, ignori_nombrojn=True):
+        """Выдать слова, встречающиеся в тексте"""
         vortoj = re.findall("[a-z'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
             rezulto = list(filter(lambda x: not x.isdigit(), rezulto))
-        if dvojo is not None:
-            CelDosiero(dvojo, formatilo=x_igi).skribi_vortliston(rezulto)
         return rezulto
 
-    def _ricevi_nerekonitajn_vortojn(self):
-        rezulto = [
-            vorto
-            for vorto in self.dismorfigo.keys()
-            if self.dismorfigo[vorto].disigoj == []
-        ]
-        return forigi_ripetojn_konservante_ordon(rezulto)
-
-    # def _ricevi_radikojn(self):
-    # radikoj = []
-    # for vorto in self.vortoj:
-    # vortradikoj = self.dismorfigo[vorto].radikoj
-    # radikoj += vortradikoj
-    # return radikoj
-
-    def _ricevi_vortarajn_vortojn_por(self):
+    def __dismorfigi(self):
+        """Получить словарь: слово -> класс с морфологическими разборами для него"""
+        rezulto = {}
+        for vorto in self.vortoj:
+            # брать только один разбор
+            rezulto[vorto] = Dismorfemo(vorto, maksimuma_nombro_de_disigoj=1)
+        return rezulto
+    
+    def __ricevi_vortarajn_vortojn_por(self):
         cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
-            vortinternaj_vortetoj = self.dismorfigo[vorto].vortetoj
             vortaraj_vortoj_por_vorto = []
-            vortaraj_vortoj_por_vorto += vortinternaj_vortetoj
-            vortradikoj = self.dismorfigo[vorto].radikoj
-            for radiko in vortradikoj:
+            for radiko in self.dismorfigo_por[vorto].radikoj:
                 vortaraj_vortoj_por_vorto += cxefvortoj_el[radiko]
+            vortaraj_vortoj_por_vorto += self.dismorfigo_por[vorto].vortetoj
+
             vortaraj_vortoj_por[vorto] = forigi_ripetojn_konservante_ordon(
                 vortaraj_vortoj_por_vorto
             )
         return vortaraj_vortoj_por
 
-    def _ricevi_vortarajn_vortojn(self):
+    def __ricevi_nerekonitajn_vortojn(self):
+        rezulto = [
+            vorto
+            for vorto in self.vortoj
+            if self.dismorfigo_por[vorto].disigoj == []
+        ]
+        return rezulto
+
+    def __ricevi_vortarajn_vortojn(self):
         vortaraj_vortoj = []
         for vorto in self.vortoj:
             vortaraj_vortoj += self.vortaraj_vortoj_por[vorto]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
 
-    def _dismorfigi(self):
-        # словарь: слово -> список его разборов
-        rezulto = {}
-        for vorto in self.vortoj:
-            # брать только один разбор
-            rezulto[vorto] = Dismorfemo(vorto, maksimuma_nombro_de_disigoj=1)
-            # rezulto[vorto] = Dismorfemo(vorto)
-        return rezulto
-
     def skribi_dismorfigon(self, dvojo, plendetala=False):
         if plendetala:
             kore_por_vortaro = {
                 vorto: str(vdis.senlimigaj_disigoj)
-                for vorto, vdis in self.dismorfigo.items()
+                for vorto, vdis in self.dismorfigo_por.items()
             }
         else:
             kore_por_vortaro = {
-                vorto: str(vdis) for vorto, vdis in self.dismorfigo.items()
+                vorto: str(vdis) for vorto, vdis in self.dismorfigo_por.items()
             }
         Vortaro(kore_por_vortaro).save(dvojo=dvojo)
 
