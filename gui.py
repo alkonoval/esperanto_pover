@@ -12,24 +12,20 @@ class MainWindow(tkinter.Frame):
         ttk.Style().theme_use("clam")
         self.pack(expand=True, fill=tkinter.BOTH)
 
-        self.toolbar = ttk.Frame(self)
-        self.toolbar.pack(side=tkinter.TOP, fill=tkinter.X)
+        toolbar = ttk.Frame(self)
+        toolbar.pack(side=tkinter.TOP, fill=tkinter.X)
 
-        self.button_paste = ttk.Button(
-            self.toolbar, text="Из файла…", command=self._from_file
+        ttk.Button(toolbar, text="Из файла…", command=self._from_file).pack(
+            side=tkinter.LEFT
         )
-        self.button_paste.pack(side=tkinter.LEFT)
 
-        self.button_paste = ttk.Button(
-            self.toolbar, text="Вставить", command=self._paste
+        ttk.Button(toolbar, text="Вставить", command=self._paste).pack(
+            side=tkinter.LEFT
         )
-        self.button_paste.pack(side=tkinter.LEFT)
 
-        self.button_ek = ttk.Button(self.toolbar, text="Обработать", command=self._ek)
-        self.button_ek.pack(side=tkinter.LEFT)
+        ttk.Button(toolbar, text="Обработать", command=self._ek).pack(side=tkinter.LEFT)
 
-        self.button_quit = ttk.Button(self.toolbar, text="Выход", command=self.quit)
-        self.button_quit.pack(side=tkinter.LEFT)
+        ttk.Button(toolbar, text="Выход", command=self.quit).pack(side=tkinter.LEFT)
 
         self.text_input = tkinter.Text(self)
         self.text_input.pack(fill=tkinter.BOTH, expand=True)
