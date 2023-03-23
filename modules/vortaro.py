@@ -109,8 +109,8 @@ class Vortaro:
 
 # Загрузить словарь из файла
 BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(
-    Path(__file__).parent / ".." / "data" / "bazavortaro.txt",
+    Path(__file__).parent / ".." / "dictionaries" / "bazavortaro.txt",
     kamp_num = 3
-    #Path(__file__).parent / ".." / "data" / "bazavortaro_2023-03-14.txt",
+    #Path(__file__).parent / ".." / "dictionaries" / "bazavortaro_2023-03-14.txt",
     #kamp_num = 4
 )
