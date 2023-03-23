@@ -5,6 +5,8 @@ from tkinter import filedialog, messagebox
 
 from modules.teksto import Teksto
 
+OUTPUT_DIR = Path("./output")
+
 
 class MainWindow(tkinter.Frame):
     def __init__(self, parent):
@@ -60,15 +62,16 @@ class MainWindow(tkinter.Frame):
             teksto = Teksto(teksto=text)
             teksto.prilabori()
 
-            teksto.skribi_dismorfigon(cel_dnomo="Dismorfemo")
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # lazy directory creation
+            teksto.skribi_dismorfigon(dvojo=OUTPUT_DIR / "Dismorfemo")
             teksto.skribi_dismorfigon(
-                cel_dnomo="Dismorfemo_plendetala", plendetala=True
+                dvojo=OUTPUT_DIR / "Dismorfemo_plendetala", plendetala=True
             )
 
-            teksto.vortareto.save(dnomo="Vortareto")
+            teksto.vortareto.save(dvojo=OUTPUT_DIR / "Vortareto")
 
             teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-                "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
+                OUTPUT_DIR / "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
             )
             if not len(teksto.vortaraj_vortoj):
                 messagebox.showerror(
