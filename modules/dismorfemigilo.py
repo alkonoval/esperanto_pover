@@ -46,10 +46,10 @@ EO_REGULOJ = {
 def PEZO(x):
     if x in ["F"]:
         return 1
-    elif x in ["Ap", "As", "Va", "Vpa"]:
-        return 5
     elif x in ["K", "S"]:
-        return 5
+        return 3
+    elif x in ["Ap", "As", "Va", "Vpa"]:
+        return 4
     elif x in ["Vr"]:
         return 9
     else:
