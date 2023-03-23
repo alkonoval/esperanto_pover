@@ -18,21 +18,21 @@ class Vortaro:
         self.kore = kore
         # выводится в качестве значения слова, если значение слова не определено
         self.nomo_por_None = "@ не определено"
+        self.sep = "\t"
 
     def elsxuti_el_dosieron(self, dvojo):
         """Считать словарь из файла"""
         linioj = FontDosiero(dvojo).legi_liniojn()
         for row in linioj:
             kamp_num = 3
-            # split = eniga_formatilo(row.strip()).split('\t', maxsplit=2)
-            split = row.strip().split("\t", maxsplit=2)
+            split = row.strip().split(self.sep, maxsplit=kamp_num-1)
             key = split[0].lower()
             if key.isspace():
                 continue
             split = split + ["" for i in range(kamp_num - len(split))]
             value = split[1]
             comment = split[2]
-            self.kore[key] = f"{value}\t{comment}"
+            self.kore[key] = f"{value}{self.sep}{comment}"
         return self
 
     def subvortaro(self, vortoj):
@@ -69,7 +69,6 @@ class Vortaro:
         output = ""
         cxelo = '<td style="vertical-align:top;">{}</td>'
         sxablono = f"<tr>{cxelo}{cxelo}{cxelo}</tr>\n"
-        # sxablono = f'<tr>{cxelo}{cxelo}</tr>\n'
         for key, value in self.kore.items():
             key = f"<b>{key}</b>"
             if value is not None:
@@ -79,21 +78,20 @@ class Vortaro:
                     value = value.replace("(", "<i>(").replace(")", "</i>)")
             else:
                 value = self.nomo_por_None
-            split = value.split("\t")
+            split = value.split(self.sep)
             value = split[0]
             comment = split[1] if len(split) > 1 else ""
             output += sxablono.format(key, value, comment)
-            # output += sxablono.format(key, value)
         output = f"<table>\n{output}</table>"
         return output
 
     def txt(self):
         """Вернуть словарь в виде текста формате txt"""
         output = ""
-        sxablono = "{}\t{}\n"
         for key, value in self.kore.items():
             value = value if value is not None else self.nomo_por_None
             output += sxablono.format(key, value)
+            output += f"{key}{self.sep}{value}"
         return output
 
     def save(self, dvojo):
