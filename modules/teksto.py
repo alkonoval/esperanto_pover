@@ -43,11 +43,7 @@ class Teksto:
 
     def __dismorfigi(self):
         """Получить словарь: слово -> класс с морфологическими разборами для него"""
-        rezulto = {}
-        for vorto in self.vortoj:
-            # брать только один разбор
-            rezulto[vorto] = Dismorfemo(vorto, maksimuma_nombro_de_disigoj=1)
-        return rezulto
+        return {vorto : Dismorfemo(vorto) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
         cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()

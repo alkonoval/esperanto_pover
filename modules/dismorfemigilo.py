@@ -204,17 +204,22 @@ class Disigo(list):
 class Dismorfemo:
     """ Все возможные разборы слова на морфемы """
 
-    def __init__(self, vorto, maksimuma_nombro_de_disigoj=2):
+    def __init__(self, vorto):
         self.vorto = vorto.lower()
         self.radikalo = self.ricevi_radikalon()  # основа слова
         self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
         self.gramatiko = self.ricevi_tauxgan_gramatikon()
 
         self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
-        self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
-        self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
-        self.disigoj = self.senlimigaj_disigoj[:maksimuma_nombro_de_disigoj]
-        self.plejbona_disigo = self.disigoj[0] if self.disigoj != [] else None
+        if self.senlimigaj_disigoj != []:
+            self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
+            self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
+            self.plejbona_disigo = self.senlimigaj_disigoj[0]
+            min_pezo = self.plejbona_disigo.pezo()
+            self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
+        else:
+            self.plejbona_disigo = None
+            self.disigoj = []
 
         self.radikoj = self.ricevi_radikojn()
         self.vortetoj = self.ricevi_vortetojn()
