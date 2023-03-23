@@ -22,6 +22,8 @@ class TestClient(TestCase):
             "sangopremo" : "sang-o-prem-o",
             "disputis" : "disput-is",
             "20-sekunda" : "20-sekund-a",
+            "arbetaro" : "arb-et-ar-o",
+            "disiradis" : "dis-ir-ad-is",
         }
         for vorto, gxusta_disigo in self.gxustaj_disigoj.items():
             vorto = x_igi(vorto)
@@ -36,9 +38,7 @@ class TestClient(TestCase):
             "pikradetoj",
             "ĉielo",
             "filineton",
-            "arbetaro",
             "esperante",
-            "disiradis",
             "georgia"
         ]
         for vorto in malbonaj_vortoj:
