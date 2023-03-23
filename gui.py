@@ -23,6 +23,10 @@ class MainWindow(tkinter.Frame):
             side=tkinter.LEFT
         )
 
+        ttk.Button(toolbar, text="Очистить", command=self._clear).pack(
+            side=tkinter.LEFT
+        )
+
         ttk.Button(toolbar, text="Обработать", command=self._ek).pack(side=tkinter.LEFT)
 
         ttk.Button(toolbar, text="Выход", command=self.quit).pack(side=tkinter.LEFT)
@@ -36,12 +40,15 @@ class MainWindow(tkinter.Frame):
         if not filename:
             return
         text = Path(filename).read_text()
-        self.text_input.delete(0.1, tkinter.END)
+        self._clear()
         self.text_input.insert(0.1, text)
 
     def _paste(self):
         text = self.clipboard_get()
         self.text_input.insert(self.text_input.index(tkinter.INSERT), text)
+
+    def _clear(self):
+        self.text_input.delete(0.1, tkinter.END)
 
     def _ek(self):
         text = self.text_input.get(0.1, tkinter.END).strip()
