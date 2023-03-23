@@ -19,9 +19,9 @@ class Vortaro:
         # выводится в качестве значения слова, если значение слова не определено
         self.nomo_por_None = "@ не определено"
 
-    def elsxuti_el_dosieron(self, dnomo):
+    def elsxuti_el_dosieron(self, dvojo):
         """Считать словарь из файла"""
-        linioj = FontDosiero(dnomo).legi_liniojn()
+        linioj = FontDosiero(dvojo).legi_liniojn()
         for row in linioj:
             kamp_num = 3
             # split = eniga_formatilo(row.strip()).split('\t', maxsplit=2)
@@ -96,28 +96,20 @@ class Vortaro:
             output += sxablono.format(key, value)
         return output
 
-    def save(self, dnomo, dosiertipo="html"):
+    def save(self, dvojo):
         """Записать словарь файл в одном из форматов: txt, html"""
-        switch = {"html": self.html, "txt": self.txt}
-        if dosiertipo not in switch:
-            print("Eraro: Maltauxga dosiertipo:", dosiertipo)
+        if dvojo.suffix == '':
+            dvojo = dvojo.with_name(f"{dvojo.name}.html")
+        switch = {".html": self.html, ".txt": self.txt}
+        if dvojo.suffix not in switch:
+            print("Eraro: Maltauxga dosiertipo:", dvojo.suffix)
             print("Tauxgaj dosiertipoj:", ", ".join(switch.keys()))
             return
-        dnomo = f"{dnomo}.{dosiertipo}"
-        output = switch[dosiertipo]()
-        CelDosiero(dnomo).skribi(output)
+        output = switch[dvojo.suffix]()
+        CelDosiero(dvojo).skribi(output)
 
 
 # Загрузить словарь из файла
 BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(
     Path(__file__).parent / ".." / "data" / "bazavortaro.txt"
 )
-
-if __name__ == "__main__":
-    # Сохранить весь словарь в формате html
-    # BAZA_VORTARO.save(dnomo = "tuta_bazvortaro", dosiertipo = 'html')
-
-    # Подсловарь для слов из файла
-    vortoj = FontDosiero("P_1.txt").legi_vortliston()
-    subvortaro = BAZA_VORTARO.subvortaro(vortoj)
-    subvortaro.save(dnomo="P_2", dosiertipo="html")
