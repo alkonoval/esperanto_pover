@@ -10,24 +10,29 @@ class MainWindow(tkinter.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         ttk.Style().theme_use("clam")
-        self.grid(sticky="NESW")
+        self.pack(expand=True, fill=tkinter.BOTH)
+
+        self.toolbar = ttk.Frame(self)
+        self.toolbar.pack(side=tkinter.TOP)
 
         self.button_paste = ttk.Button(
-            self, text="Из файла...", command=self._from_file
+            self.toolbar, text="Из файла…", command=self._from_file
         )
-        self.button_paste.grid(row=0, column=0)
+        self.button_paste.pack(side=tkinter.LEFT)
 
-        self.button_paste = ttk.Button(self, text="Вставить", command=self._paste)
-        self.button_paste.grid(row=0, column=1)
+        self.button_paste = ttk.Button(
+            self.toolbar, text="Вставить", command=self._paste
+        )
+        self.button_paste.pack(side=tkinter.LEFT)
 
-        self.button_ek = ttk.Button(self, text="Обработать", command=self._ek)
-        self.button_ek.grid(row=0, column=2)
+        self.button_ek = ttk.Button(self.toolbar, text="Обработать", command=self._ek)
+        self.button_ek.pack(side=tkinter.LEFT)
+
+        self.button_quit = ttk.Button(self.toolbar, text="Выход", command=self.quit)
+        self.button_quit.pack(side=tkinter.LEFT)
 
         self.text_input = tkinter.Text(self)
-        self.text_input.grid(row=1, column=0, columnspan=3, sticky="NESW")
-
-        self.grid_rowconfigure(0, pad=8)
-        self.grid_rowconfigure(1, weight=1)
+        self.text_input.pack(fill=tkinter.BOTH, expand=True)
 
     def _from_file(self):
         filetypes = [("Text files", "*.txt"), ("All files", "*")]
@@ -80,10 +85,11 @@ class Application(tkinter.Tk):
         super().__init__(*args, **kwargs)
         self.title("PoshaVortaroEoRu")
         self.main_window = MainWindow(self)
-        self.main_window.pack()
+        self.main_window.pack(expand=True)
 
         # Try to place the window at the center of the screen
         self.eval("tk::PlaceWindow . center")
+
 
 def main():
     application = Application()
