@@ -13,7 +13,7 @@ class MainWindow(tkinter.Frame):
         self.pack(expand=True, fill=tkinter.BOTH)
 
         self.toolbar = ttk.Frame(self)
-        self.toolbar.pack(side=tkinter.TOP)
+        self.toolbar.pack(side=tkinter.TOP, fill=tkinter.X)
 
         self.button_paste = ttk.Button(
             self.toolbar, text="Из файла…", command=self._from_file
