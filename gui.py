@@ -1,0 +1,94 @@
+import tkinter
+import tkinter.ttk as ttk
+from pathlib import Path
+from tkinter import filedialog, messagebox
+
+from modules.teksto import Teksto
+
+
+class MainWindow(tkinter.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        ttk.Style().theme_use("clam")
+        self.grid(sticky="NESW")
+
+        self.button_paste = ttk.Button(
+            self, text="Из файла...", command=self._from_file
+        )
+        self.button_paste.grid(row=0, column=0)
+
+        self.button_paste = ttk.Button(self, text="Вставить", command=self._paste)
+        self.button_paste.grid(row=0, column=1)
+
+        self.button_ek = ttk.Button(self, text="Обработать", command=self._ek)
+        self.button_ek.grid(row=0, column=2)
+
+        self.text_input = tkinter.Text(self)
+        self.text_input.grid(row=1, column=0, columnspan=3, sticky="NESW")
+
+        self.grid_rowconfigure(0, pad=8)
+        self.grid_rowconfigure(1, weight=1)
+
+    def _from_file(self):
+        filetypes = [("Text files", "*.txt"), ("All files", "*")]
+        filename = filedialog.askopenfilename(filetypes=filetypes)
+        if not filename:
+            return
+        text = Path(filename).read_text()
+        self.text_input.delete(0.1, tkinter.END)
+        self.text_input.insert(0.1, text)
+
+    def _paste(self):
+        text = self.clipboard_get()
+        self.text_input.insert(self.text_input.index(tkinter.INSERT), text)
+
+    def _ek(self):
+        text = self.text_input.get(0.1, tkinter.END).strip()
+        if not text:
+            messagebox.showerror("Error", "Введите текст на эсперанто")
+            return
+
+        try:
+            teksto = Teksto(teksto=text)
+            teksto.prilabori()
+
+            teksto.skribi_dismorfigon(cel_dnomo="Dismorfemo")
+            teksto.skribi_dismorfigon(
+                cel_dnomo="Dismorfemo_plendetala", plendetala=True
+            )
+
+            teksto.vortareto.save(dnomo="Vortareto")
+
+            teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
+                "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
+            )
+            if not len(teksto.vortaraj_vortoj):
+                messagebox.showerror(
+                    title="Ошибка",
+                    message="В тексте нет ни одного известного слова на эсперанто!",
+                )
+                return
+        except Exception as exception:
+            messagebox.showerror(title="Ошибка", message=f"Ошибка: {exception}")
+        else:
+            message = f"Обработано слов: {len(teksto.vortaraj_vortoj)}"
+            messagebox.showinfo(title="OK", message=message)
+
+
+class Application(tkinter.Tk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("PoshaVortaroEoRu")
+        self.main_window = MainWindow(self)
+        self.main_window.pack()
+
+        # Try to place the window at the center of the screen
+        self.eval("tk::PlaceWindow . center")
+
+def main():
+    application = Application()
+    application.mainloop()
+
+
+if __name__ == "__main__":
+    main()
