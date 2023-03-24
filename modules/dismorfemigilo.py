@@ -17,8 +17,10 @@ EO_BASE = {
     "N": [],
     # Окончания
     "F": MORFEMARO.finajxoj,
-    # Аффиксы
-    "A": MORFEMARO.afiksoj,
+    # Приставки
+    "Ap": MORFEMARO.prefiksoj,
+    # Суффиксы
+    "As": MORFEMARO.sufiksoj,
     # Соединительная гласная или символ
     "K": MORFEMARO.internaj_literaj_kunligajxoj,
     # дефис
@@ -31,23 +33,23 @@ EO_REGULOJ = {
     # начальное состояние
     "w": ["N", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bVr"],
     # состояние после окончания
-    "a": ["N", "R", "A", "Vr", "Vp", "Vpa"] + ["bR", "bA", "bVr"] + ["dS"],
+    "a": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpa"] + ["bR", "bAs", "bAp", "bVr"] + ["dS"],
     # состояние после корня или корнеподобной морфемы
-    "b": ["N", "R", "A", "Vr", "Vp", "Vpl"] + ["bR", "bA", "bVr"] + ["cK", "dS"],
+    "b": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"] + ["cK", "dS"],
     # состояние после соединительной гласной
-    "c": ["N", "R", "A", "Vr", "Vp", "Vpl"] + ["bR", "bA", "bVr"],
+    "c": ["N", "R", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"],
     # состояние поcле дефиса
-    "d": ["N", "R", "A", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bA", "bVr"],
+    "d": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bAs", "bAp", "bVr"],
 }
 
 # Вес морфемы каждого типа
 def PEZO(x):
     if x in ["F"]:
         return 1
-    elif x in ["A", "Va", "Vpa"]:
-        return 5
     elif x in ["K", "S"]:
-        return 5
+        return 3
+    elif x in ["Ap", "As", "Va", "Vpa"]:
+        return 4
     elif x in ["Vr"]:
         return 9
     else:
@@ -179,7 +181,14 @@ class Disigo(list):
         """ Получить вес разбора слова.
             Разборы слова, которые имееют меньший вес, считаются более "правильными".
         """
-        return reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
+        # сумма весов морфем
+        rezulto = reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
+        # штраф за расположение морфем
+        puno = 0
+        # если слово начинается с суффикса, то вес этого суффикса дополняется до веса корня
+        puno += PEZO('R') - PEZO('As') if self[0][1] == 'As' else 0
+        rezulto += puno
+        return rezulto 
     
     def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
         """
@@ -195,17 +204,22 @@ class Disigo(list):
 class Dismorfemo:
     """ Все возможные разборы слова на морфемы """
 
-    def __init__(self, vorto, maksimuma_nombro_de_disigoj=2):
+    def __init__(self, vorto):
         self.vorto = vorto.lower()
         self.radikalo = self.ricevi_radikalon()  # основа слова
         self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
         self.gramatiko = self.ricevi_tauxgan_gramatikon()
 
         self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
-        self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
-        self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
-        self.disigoj = self.senlimigaj_disigoj[:maksimuma_nombro_de_disigoj]
-        self.plejbona_disigo = self.disigoj[0] if self.disigoj != [] else None
+        if self.senlimigaj_disigoj != []:
+            self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
+            self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
+            self.plejbona_disigo = self.senlimigaj_disigoj[0]
+            min_pezo = self.plejbona_disigo.pezo()
+            self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
+        else:
+            self.plejbona_disigo = None
+            self.disigoj = []
 
         self.radikoj = self.ricevi_radikojn()
         self.vortetoj = self.ricevi_vortetojn()
