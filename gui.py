@@ -74,13 +74,11 @@ class MainWindow(tkinter.Frame):
                 OUTPUT_DIR / "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
             )
             if not len(teksto.vortaraj_vortoj):
-                messagebox.showerror(
-                    title="Ошибка",
-                    message="В тексте нет ни одного известного слова на эсперанто!",
+                raise ValueError(
+                    "В тексте нет ни одного известного слова на эсперанто!"
                 )
-                return
         except Exception as exception:
-            messagebox.showerror(title="Ошибка", message=f"Ошибка: {exception}")
+            messagebox.showerror(title="Ошибка", message=f"{exception}")
         else:
             message = f"Обработано слов: {len(teksto.vortaraj_vortoj)}"
             messagebox.showinfo(title="OK", message=message)
