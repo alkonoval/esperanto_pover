@@ -1,64 +1,15 @@
 import re
 from functools import reduce
 
+from .dosierojn_ls import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ, rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
 from .vortaro import BAZA_VORTARO
 
-# Виды морфем
-EO_BASE = {
-    # VORTETOJ - слова, которые не требуют окончания
-    "Va": VORTETOJ.Va,
-    "Vp": VORTETOJ.Vp,
-    "Vpl": VORTETOJ.Vpl,
-    "Vpa": VORTETOJ.Vpa,
-    "Vr": VORTETOJ.Vr,
-    # Арабские числа # Специальные разбор в функции Gramatiko.dividi
-    "N": [],
-    # Окончания
-    "F": MORFEMARO.finajxoj,
-    # Приставки
-    "Ap": MORFEMARO.prefiksoj,
-    # Суффиксы
-    "As": MORFEMARO.sufiksoj,
-    # Соединительная гласная или символ
-    "K": MORFEMARO.internaj_literaj_kunligajxoj,
-    # дефис
-    "S": MORFEMARO.internaj_kunligaj_simboloj,
-    # Возможные корни из словаря
-    # EO_BASE['R'] инициализируется внутри класса Dismorfemo
-    "R": [],
-}
-EO_REGULOJ = {
-    # начальное состояние
-    "w": ["N", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bVr"],
-    # состояние после окончания
-    "a": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpa"] + ["bR", "bAs", "bAp", "bVr"] + ["dS"],
-    # состояние после корня или корнеподобной морфемы
-    "b": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"] + ["cK", "dS"],
-    # состояние после соединительной гласной
-    "c": ["N", "R", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"],
-    # состояние поcле дефиса
-    "d": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bAs", "bAp", "bVr"],
-}
 
-# Вес морфемы каждого типа
-def PEZO(x):
-    if x in ["F"]:
-        return 1
-    elif x in ["K", "S"]:
-        return 3
-    elif x in ["Ap", "As", "Va", "Vpa"]:
-        return 4
-    elif x in ["Vr"]:
-        return 9
-    else:
-        return 10
-
-
-class Gramatiko:
+class VortEoGramatiko:
     """
-    Леволинейная грамматика для распознавания слов языка
+    Леволинейная пораждающая грамматика слов языка Эсперанто
 
     Все нетерминальные символы бывают двух видов: состояния и множества.
 
@@ -67,7 +18,7 @@ class Gramatiko:
 
     Правила бывают двух видов:
 
-    1) Определяется словаряем base : X -> [str1, str2, ..., str_n], который
+    1) Определяется словаряем morfemoj : tipo -> [str1, str2, ..., str_n], который
     каждому символу-множеству сопоставляет список строк.
 
     В грамматике соответствует конечному числу правил
@@ -83,14 +34,49 @@ class Gramatiko:
     x -> xA, x -> A, x -> yA, x -> yB, x -> B, ...
 
     start --- начальный нетерминальный символ-состояние
+
+    Attributes
+        radikoj: iterable - список базовых словарных корней
     """
+    
+    def __init__(self, radikoj):
+        # Словарь: морфемный тип -> список морфем данного типа
+        self.morfemoj = {
+            # VORTETOJ - слова, которые не требуют окончания
+            "Va": VORTETOJ.Va,
+            "Vp": VORTETOJ.Vp,
+            "Vpl": VORTETOJ.Vpl,
+            "Vpa": VORTETOJ.Vpa,
+            "Vr": VORTETOJ.Vr,
+            # Арабские числа # Специальные разбор в функции VortEoGramatiko._dividi
+            "N": None,
+            # Окончания
+            "F": MORFEMARO.finajxoj,
+            # Приставки
+            "Ap": MORFEMARO.prefiksoj,
+            # Суффиксы
+            "As": MORFEMARO.sufiksoj,
+            # Соединительная гласная или символ
+            "K": MORFEMARO.internaj_literaj_kunligajxoj,
+            # дефис
+            "S": MORFEMARO.internaj_kunligaj_simboloj,
+            "R": radikoj,
+        }
+        self.start = "w"
+        self.reguloj = {
+            # начальное состояние
+            "w": ["N", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bVr"],
+            # состояние после окончания
+            "a": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpa"] + ["bR", "bAs", "bAp", "bVr"] + ["dS"],
+            # состояние после корня или корнеподобной морфемы
+            "b": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"] + ["cK", "dS"],
+            # состояние после соединительной гласной
+            "c": ["N", "R", "As", "Vr", "Vp", "Vpl"] + ["bR", "bAs", "bAp", "bVr"],
+            # состояние поcле дефиса
+            "d": ["N", "R", "Ap", "As", "Vr", "Vp", "Vpl", "Vpa", "Va"] + ["aF", "bR", "bAs", "bAp", "bVr"],
+        }
 
-    def __init__(self, base=EO_BASE, reguloj=EO_REGULOJ, start="w"):
-        self.base = base
-        self.reguloj = reguloj
-        self.start = start
-
-    def dividi(self, peco, regulo):
+    def _dividi(self, peco, regulo):
         """
         Получить все возможные варианты разбиения строки peco в соответствии со
         строкой специального вида regulo.
@@ -120,7 +106,7 @@ class Gramatiko:
             new_state = ""
             tipo = regulo
         variantoj = []
-        sxablonoj = [f"{mor}$" for mor in self.base[tipo]] if tipo != "N" else ["\d+$"]
+        sxablonoj = [f"{mor}$" for mor in self.morfemoj[tipo]] if tipo != "N" else ["\d+$"]
         for sxablono in sxablonoj:
             match = re.search(sxablono, peco)
             if match:
@@ -148,7 +134,7 @@ class Gramatiko:
             state = self.start
         variantoj = []
         for regulo in self.reguloj[state]:
-            rez = self.dividi(peco, regulo)
+            rez = self._dividi(peco, regulo)
             variantoj += rez
         rezulto = []
         for vr in variantoj:
@@ -169,107 +155,79 @@ class Gramatiko:
         return rezulto
 
 class Disigo(list):
-    """ Разбор слова на морфемы в виде: [(mor_1, tip_n), ..., (mor_n, tip_n)],
+    """ Представление разбора слова на морфемы в виде: [(mor_1, tip_n), ..., (mor_n, tip_n)],
     где mor_1, ..., mor_n - морфемы (части слова),
-    а tip_1, ..., tip_2 - соответствующие тыпы морфемы из EO_BASE.keys()
+    а tip_1, ..., tip_2 - соответствующие тыпы морфемы из VortEoGramatiko.morfemoj.keys()
     """
+
+    # Вес морфемы каждого типа
+    morfem_pezo = {
+            "R": 10, # корень
+            "N": 10, # число (арабскими цифрами)
+            "F": 1, # окончание
+            "Ap": 4, # приставки
+            "As": 4, # суффиксы
+            "K": 3, # соеднитительная гласная
+            "S": 3, # дефис
+            # Подтипы специальных слов-корней из VORTETOJ, которые не требуют окончания
+            "Va": 4, 
+            "Vp": 10,
+            "Vpl": 10,
+            "Vpa": 4,
+            "Vr": 9,
+        }
+
     def __str__(self):
         """ mor_1-mor_2-...-mor_n """
-        return "-".join(filter(lambda x: x != "-", map(lambda x: x[0], self)))
+        return "-".join(filter(lambda x: x != "-", map(lambda paro: sen_x_igi(paro[0]), self)))
     
     def pezo(self):
         """ Получить вес разбора слова.
             Разборы слова, которые имееют меньший вес, считаются более "правильными".
         """
-        # сумма весов морфем
-        rezulto = reduce(lambda x, y: x + y, map(lambda x: PEZO(x[1]), self))
-        # штраф за расположение морфем
+        # Сумма весов морфем
+        rezulto = reduce(lambda x, y: x + y, map(lambda x: self.morfem_pezo[x[1]], self))
+        # Штраф за расположение морфем
         puno = 0
-        # если слово начинается с суффикса, то вес этого суффикса дополняется до веса корня
-        puno += PEZO('R') - PEZO('As') if self[0][1] == 'As' else 0
+        # Если слово начинается с суффикса, то вес этого суффикса дополняется до веса корня
+        puno += self.morfem_pezo['R'] - self.morfem_pezo['As'] if self[0][1] == 'As' else 0
         rezulto += puno
         return rezulto 
     
     def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
-        """
-        Получить список морфем из разбора, тип которых удовлетворяет уcловию
-        kondicho_por_morfema_tipo
-
-        Args:
-            kondicho_por_morfema_tipo: одноместная функция из множества
-            EO_BASE.keys() в bool
-        """
         return [x[0] for x in self if kondicho_por_morfema_tipo(x[1])]
 
 class Dismorfemo:
-    """ Все возможные разборы слова на морфемы """
+    """ Разборы слова на морфемы """
 
-    def __init__(self, vorto):
-        self.vorto = vorto.lower()
-        self.radikalo = self.ricevi_radikalon()  # основа слова
-        self.eblaj_radikoj = self.ricevi_eblajn_radikojn()
-        self.gramatiko = self.ricevi_tauxgan_gramatikon()
-
-        self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
-        if self.senlimigaj_disigoj != []:
-            self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
-            self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
-            self.plejbona_disigo = self.senlimigaj_disigoj[0]
-            min_pezo = self.plejbona_disigo.pezo()
-            self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
-        else:
-            self.plejbona_disigo = None
-            self.disigoj = []
-
-        self.radikoj = self.ricevi_radikojn()
-        self.vortetoj = self.ricevi_vortetojn()
-
-    def ricevi_tauxgan_gramatikon(self):
-        baseR = dict(EO_BASE)
-        baseR["R"] = self.eblaj_radikoj
-        return Gramatiko(base=baseR)
-
-    def __str__(self):
-        rezs = []
-        for disigo in self.senlimigaj_disigoj:
-            rezs.append(f"{disigo}({disigo.pezo()})")
-        return ", ".join(rezs)
-
-    def detala_info(self):
-        rezulto = ""
-        for key, it in self.__dict__.items():
-            rezulto += f"{key} {it}\n"
-        rezulto += str(self)
-        return rezulto
-
-    def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
-        rezulto = []
-        for disigo in self.disigoj:
-            morfemoj = disigo.ricevi_morfemojn(kondicho_por_morfema_tipo)
-            rezulto += morfemoj
-        return rezulto
-
-    def ricevi_radikojn(self):
-        return self.ricevi_morfemojn(lambda x: x == "R")
-
-    def ricevi_vortetojn(self):
-        """
-        Получить все специальные слова, встречающиеся в разборе. При этом
-        удаляются постокончания -j, -n, -jn.
-        """
-        vortetoj = self.ricevi_morfemojn(lambda x: x[0] == "V")
-        rafinitaj_vortetoj = list(map(rafini_vorton, vortetoj))
-        return forigi_ripetojn_konservante_ordon(rafinitaj_vortetoj)
-
-    def ricevi_radikalon(self):
-        rezulto = senfinajxigi(
+    def __init__(
+        self, vorto, cxiuj_vortaraj_radikoj = BAZA_VORTARO.radikoj(output_format="set")
+        ):
+        # Слово для морфологического разбора
+        self.vorto = x_igi(vorto.lower())
+        # Основа слова
+        self.radikalo = senfinajxigi(
             self.vorto, finajxoj=MORFEMARO.finajxoj, esceptoj=LEKSEMARO.cxiuj_vortetoj
         )
-        return rezulto
-
-    def ricevi_eblajn_radikojn(
-        self, vortaraj_radikoj=BAZA_VORTARO.radikoj(output_format="set")
-    ):
+        # Все подстроки слова, которые встречаются в множестве cxiuj_vortaraj_radikoj
+        self.eblaj_radikoj = self._ricevi_eblajn_radikojn(cxiuj_vortaraj_radikoj)
+        # Порождающая грамматика, посредством которой будет производиться разбор слова
+        self.gramatiko = VortEoGramatiko(radikoj=self.eblaj_radikoj)
+        self.senlimigaj_disigoj = self.gramatiko.disigi(self.vorto)
+        if self.senlimigaj_disigoj != []:
+            # Все возможные разборы слова на морфемы, упорядоченные по весу
+            self.senlimigaj_disigoj = list(map(Disigo, self.senlimigaj_disigoj))
+            self.senlimigaj_disigoj.sort(key=lambda x: x.pezo())
+            min_pezo = self.senlimigaj_disigoj[0].pezo()
+            # Лучшие разборы слова (разборы с наименьшим весом)
+            self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
+        else:
+            # Слово не имеет разборов
+            self.disigoj = []
+        self.radikoj = self.ricevi_morfemojn(lambda tipo: tipo == "R")
+        self.vortetoj = self.ricevi_vortetojn()
+    
+    def _ricevi_eblajn_radikojn(self, vortaraj_radikoj):
         rezulto = []
         vorto = self.radikalo
         esceptoj = set(LEKSEMARO.cxiuj_vortetoj + MORFEMARO.afiksoj)
@@ -282,3 +240,33 @@ class Dismorfemo:
             if radiko in vortaraj_radikoj:
                 rezulto.append(radiko)
         return forigi_ripetojn_konservante_ordon(rezulto)
+
+    def __str__(self):
+        rezs = []
+        for disigo in self.senlimigaj_disigoj:
+            rezs.append(f"{disigo}({disigo.pezo()})")
+        return ", ".join(rezs)
+
+    def ricevi_morfemojn(self, kondicho_por_morfema_tipo):
+        """
+        Получить список морфем из разбора, тип которых удовлетворяет уcловию
+        kondicho_por_morfema_tipo
+
+        Args:
+            kondicho_por_morfema_tipo: одноместная функция из множества
+            VortEoGramatiko.morfemoj.keys() в bool
+        """
+        rezulto = []
+        for disigo in self.disigoj:
+            morfemoj = [x[0] for x in disigo if kondicho_por_morfema_tipo(x[1])]
+            rezulto += morfemoj
+        return rezulto
+
+    def ricevi_vortetojn(self):
+        """
+        Получить все специальные слова, встречающиеся в разборе. При этом
+        удаляются постокончания -j, -n, -jn.
+        """
+        vortetoj = self.ricevi_morfemojn(lambda x: x[0] == "V")
+        rafinitaj_vortetoj = list(map(rafini_vorton, vortetoj))
+        return forigi_ripetojn_konservante_ordon(rafinitaj_vortetoj)
