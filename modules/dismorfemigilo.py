@@ -4,8 +4,7 @@ from functools import reduce
 from .dosierojn_ls import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ, rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
-from .vortaro import BAZA_VORTARO
-
+from .vortaro import vortaro
 
 class VortEoGramatiko:
     """
@@ -201,7 +200,7 @@ class Dismorfemo:
     """ Разборы слова на морфемы """
 
     def __init__(
-        self, vorto, cxiuj_vortaraj_radikoj = BAZA_VORTARO.radikoj(output_format="set")
+        self, vorto, cxiuj_vortaraj_radikoj = vortaro.radikoj(output_format="set")
         ):
         # Слово для морфологического разбора
         self.vorto = x_igi(vorto.lower())
