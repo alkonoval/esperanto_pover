@@ -4,7 +4,7 @@ from .dismorfemigilo import Dismorfemo
 from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
 from .lingvaj_konstantoj import rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon
-from .vortaro import BAZA_VORTARO, Vortaro
+from .vortaro import vortaro, Vortaro
 
 
 class Teksto:
@@ -29,7 +29,7 @@ class Teksto:
         # список слов из словаря, которые встречаются в тексте в качестве корней
         self.vortaraj_vortoj = self.__ricevi_vortarajn_vortojn()
         # словарик для текста
-        self.vortareto = BAZA_VORTARO.subvortaro(
+        self.vortareto = vortaro.subvortaro(
             self.nerekonitaj_vortoj + self.vortaraj_vortoj
         )
 
@@ -46,7 +46,7 @@ class Teksto:
         return {vorto : Dismorfemo(vorto) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
-        cxefvortoj_el = BAZA_VORTARO.cxefvortoj_el_radiko()
+        cxefvortoj_el = vortaro.cxefvortoj_el_radiko()
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
             vortaraj_vortoj_por_vorto = []

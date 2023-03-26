@@ -3,7 +3,7 @@ from functools import reduce
 
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ, rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
-from .vortaro import BAZA_VORTARO
+from .vortaro import vortaro
 
 # Виды морфем
 EO_BASE = {
@@ -268,7 +268,7 @@ class Dismorfemo:
         return rezulto
 
     def ricevi_eblajn_radikojn(
-        self, vortaraj_radikoj=BAZA_VORTARO.radikoj(output_format="set")
+        self, vortaraj_radikoj=vortaro.radikoj(output_format="set")
     ):
         rezulto = []
         vorto = self.radikalo

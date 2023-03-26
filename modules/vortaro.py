@@ -4,6 +4,8 @@ from .dosierojn_ls import CelDosiero, FontDosiero
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
+BAZAVORTARO = Path(__file__).parent.parent / "dictionaries" / "bazavortaro.txt"
+
 
 def radikigi(vortara_vorto):
     return senfinajxigi(
@@ -107,10 +109,4 @@ class Vortaro:
         CelDosiero(dvojo).skribi(output)
 
 
-# Загрузить словарь из файла
-BAZA_VORTARO = Vortaro().elsxuti_el_dosieron(
-    Path(__file__).parent / ".." / "dictionaries" / "bazavortaro.txt",
-    kamp_num = 3
-    #Path(__file__).parent / ".." / "dictionaries" / "bazavortaro_2023-03-14.txt",
-    #kamp_num = 4
-)
+vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
