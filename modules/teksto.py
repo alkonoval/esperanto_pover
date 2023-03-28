@@ -1,11 +1,9 @@
 import re
 
-from .dismorfemigilo import Dismorfemo
+from .dismorfemigilo import Dismorfemo, rafini_vorton
 from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
-from .lingvaj_konstantoj import rafini_vorton
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
-
 
 class Teksto:
     """Класс для обработки текста"""

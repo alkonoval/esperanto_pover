@@ -284,13 +284,6 @@ class Leksemaro:
 LEKSEMARO = Leksemaro()
 
 
-def rafini_vorton(vorto):
-    """Удаляет постокончание -j, -n, -jn"""
-    return senfinajxigi(
-        vorto, finajxoj=MORFEMARO.postfinajxoj, esceptoj=LEKSEMARO.ne_jn_vortetoj
-    )
-
-
 class Vortetoj:
     """
     Специальные слова (слова, могущие употребляться без окончания)
