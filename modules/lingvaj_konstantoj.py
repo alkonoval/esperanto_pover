@@ -120,11 +120,11 @@ class Leksemaro:
         self.alelom_tabelvortoj = produto(
             ["ki", "ti", "i", "cxi", "neni"], ["al", "el", "om"]
         )
-        self.jn_tabelvortoj = (
+        self.jn_sen_en_tabelvortoj = (
             produto(self.o_tabelvortoj, ["n"])
             + produto(self.au_tabelvortoj, ["j", "jn", "n"])
-            + self.en_tabelvortoj
         )
+        self.jn_tabelvortoj = self.jn_sen_en_tabelvortoj + self.en_tabelvortoj
 
         # Местоимения
         self.pronomoj = ["mi", "ni", "vi", "ci", "li", "sxi", "gxi", "ili", "oni", "si"]
@@ -284,13 +284,6 @@ class Leksemaro:
 LEKSEMARO = Leksemaro()
 
 
-def rafini_vorton(vorto):
-    """Удаляет постокончание -j, -n, -jn"""
-    return senfinajxigi(
-        vorto, finajxoj=MORFEMARO.postfinajxoj, esceptoj=LEKSEMARO.ne_jn_vortetoj
-    )
-
-
 class Vortetoj:
     """
     Специальные слова (слова, могущие употребляться без окончания)
@@ -305,7 +298,7 @@ class Vortetoj:
 
     def __init__(self):
         self.Va = (
-            LEKSEMARO.jn_tabelvortoj
+            LEKSEMARO.jn_sen_en_tabelvortoj
             + LEKSEMARO.n_pronomoj
             + [
                 "ke",
