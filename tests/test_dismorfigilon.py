@@ -10,7 +10,10 @@ class TestClient(TestCase):
         self.malbonaj_vortoj = [
             "ĉielo",
             "esperante",
-            "georgia"
+            "georgia",
+            "neniigitaj",
+            "cxaro",
+            "sovetia"
         ]
     def test_malfacilajn_vortojn(self):
         gxustaj_disigoj = {
@@ -29,6 +32,7 @@ class TestClient(TestCase):
             "arbetaro" : "arb-et-ar-o",
             "disiradis" : "dis-ir-ad-is",
             "filineton" : "fil-in-et-on",
+            "kuspita" : "kusp-it-a"
         }
         for vorto, gxusta_disigo in gxustaj_disigoj.items():
             disigoj = Dismorfemo(vorto).disigoj
