@@ -1,47 +1,30 @@
 """Чтение и запись файлов"""
 
-diakritajxoj = ["ĉ", "ĝ", "ĥ", "ĵ", "ŝ", "ŭ"]
-Diakritajxoj = ["Ĉ", "Ĝ", "Ĥ", "Ĵ", "Ŝ", "Ŭ"]
+sendiakritigi = {
+    "ĉ": "cx",
+    "ĝ": "gx",
+    "ĥ": "hx",
+    "ĵ": "jx",
+    "ŝ": "sx",
+    "ŭ": "ux",
+    "Ĉ": "Cx",
+    "Ĝ": "Gx",
+    "Ĥ": "Hx",
+    "Ĵ": "Jx",
+    "Ŝ": "Sx",
+    "Ŭ": "Ux",
+}
 
 def x_igi(teksto):
     rez = teksto
-    rez = (
-        rez.replace("ĉ", "cx")
-        .replace("ĝ", "gx")
-        .replace("ĥ", "hx")
-        .replace("ĵ", "jx")
-        .replace("ŝ", "sx")
-        .replace("ŭ", "ux")
-    )
-    rez = (
-        rez.replace("Ĉ", "Cx")
-        .replace("Ĝ", "Gx")
-        .replace("Ĥ", "Hx")
-        .replace("Ĵ", "Jx")
-        .replace("Ŝ", "Sx")
-        .replace("Ŭ", "Ux")
-    )
+    for diakritajxo, anstatauxo in sendiakritigi.items():
+        rez.replace(diakritajxo, anstatauxo)
     return rez
-
 
 def sen_x_igi(teksto):
     rez = teksto
-    rez = (
-        rez.replace("cx", "ĉ")
-        .replace("gx", "ĝ")
-        .replace("hx", "ĥ")
-        .replace("jx", "ĵ")
-        .replace("sx", "ŝ")
-        .replace("ux", "ŭ")
-    )
-    rez = (
-        rez.replace("Cx", "Ĉ")
-        .replace("Gx", "Ĝ")
-        .replace("Hx", "Ĥ")
-        .replace("Jx", "Ĵ")
-        .replace("Sx", "Ŝ")
-        .replace("Ux", "Ŭ")
-    )
+    for diakritajxo, anstatauxo in sendiakritigi.items():
+        rez.replace(anstatauxo, diakritajxo)
     rez = (
         rez.replace("CX", "Ĉ")
         .replace("GX", "Ĝ")
@@ -51,7 +34,6 @@ def sen_x_igi(teksto):
         .replace("UX", "Ŭ")
     )
     return rez
-
 
 class FontDosiero:
     """Файл для чтения"""
@@ -85,7 +67,6 @@ class FontDosiero:
             if vorto not in vortoj:
                 vortoj.append(vorto)
         return vortoj
-
 
 class CelDosiero:
     """Файл для записи"""
