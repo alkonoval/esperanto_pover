@@ -18,13 +18,13 @@ sendiakritigi = {
 def x_igi(teksto):
     rez = teksto
     for diakritajxo, anstatauxo in sendiakritigi.items():
-        rez.replace(diakritajxo, anstatauxo)
+        rez = rez.replace(diakritajxo, anstatauxo)
     return rez
 
 def sen_x_igi(teksto):
     rez = teksto
     for diakritajxo, anstatauxo in sendiakritigi.items():
-        rez.replace(anstatauxo, diakritajxo)
+        rez = rez.replace(anstatauxo, diakritajxo)
     rez = (
         rez.replace("CX", "Ĉ")
         .replace("GX", "Ĝ")
