@@ -304,7 +304,6 @@ class Vortetoj:
                 "ke",
                 "cxu",
                 "se",
-                "cxar",
                 "ol",
                 "la",
                 "cxi",
@@ -385,6 +384,7 @@ class Vortetoj:
             "tre",
             "tro",
             "for",
+            "cxar",
         ]
 
         # vorteto -> tipo (Va, Vr и т.п.)

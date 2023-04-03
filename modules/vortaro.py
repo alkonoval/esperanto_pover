@@ -1,11 +1,13 @@
+import configparser 
 from pathlib import Path
 
 from .dosierojn_ls import CelDosiero, FontDosiero
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
-BAZAVORTARO = Path(__file__).parent.parent / "dictionaries" / "bazavortaro.txt"
-
+config = configparser.ConfigParser()  # создаём объекта парсера
+config.read("config.ini")
+BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
 
 def radikigi(vortara_vorto):
     return senfinajxigi(
@@ -13,7 +15,6 @@ def radikigi(vortara_vorto):
         finajxoj=MORFEMARO.vortaraj_finajxoj,
         esceptoj=MORFEMARO.afiksoj + LEKSEMARO.cxiuj_vortetoj,
     )
-
 
 class Vortaro:
     def __init__(self, kore={}, kamp_num = 2):
