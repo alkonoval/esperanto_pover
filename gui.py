@@ -64,14 +64,11 @@ class MainWindow(tkinter.Frame):
 
             OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # lazy directory creation
             teksto.skribi_dismorfigon(dvojo=OUTPUT_DIR / "Dismorfemo")
-            teksto.skribi_dismorfigon(
-                dvojo=OUTPUT_DIR / "Dismorfemo_plendetala", plendetala=True
-            )
 
             teksto.vortareto.save(dvojo=OUTPUT_DIR / "Vortareto")
 
             teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-                OUTPUT_DIR / "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
+                OUTPUT_DIR / "Vortaraj_vortoj.txt"
             )
             if not len(teksto.vortaraj_vortoj):
                 raise ValueError(
