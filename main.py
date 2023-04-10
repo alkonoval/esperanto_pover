@@ -26,12 +26,11 @@ if __name__ == "__main__":
 
     # Сохранить морфологический разбор всех слов текста
     teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo")
-    teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo_plendetala", plendetala=True)
 
     # Получить словарик для слов из текста
     teksto.vortareto.save(dvojo = OUTPUT_DIR / "Vortareto")
 
     # Сохранить словарные слова
     teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-        OUTPUT_DIR / "Vortaraj_vortoj_rilate_al_origignaj_vortoj.txt"
+        OUTPUT_DIR / "Vortaraj_vortoj.txt"
     )
