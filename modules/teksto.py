@@ -44,7 +44,7 @@ class Teksto:
         return {vorto : Dismorfemo(vorto) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
-        cxefvortoj_el = vortaro.cxefvortoj_el_radiko()
+        cxefvortoj_el = vortaro.cxefvortoj_el_radiko
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
             vortaraj_vortoj_por_vorto = []
