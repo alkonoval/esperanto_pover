@@ -220,7 +220,7 @@ class Dismorfemo:
     """ Разборы слова на морфемы """
 
     def __init__(self, vorto,
-                cxiuj_vortaraj_radikoj = vortaro.radikoj(output_format="set")
+                cxiuj_vortaraj_radikoj = vortaro.radikoj
         ):
         # Слово для морфологического разбора
         self.vorto = x_igi(vorto.lower())

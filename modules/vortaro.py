@@ -23,6 +23,17 @@ class Vortaro:
         self.nomo_por_None = "@ не определено"
         self.sep = "\t"
         self.kamp_num = kamp_num # число колонок словаря (включая key)
+        self.prilabori()
+    
+    def prilabori(self):
+        # Множество корней словарных слов
+        self.radikoj = set(map(lambda x: radikigi(x), self.kore.keys()))
+        # Словарь: radiko -> [cxefvorto_1, cxefvorto_2, ]
+        cxefvortoj_el = {radiko: [] for radiko in self.radikoj}
+        for cxefvorto in self.kore.keys():
+            radiko = radikigi(cxefvorto)
+            cxefvortoj_el[radiko].append(cxefvorto)
+        self.cxefvortoj_el_radiko = cxefvortoj_el
 
     def elsxuti_el_dosieron(self, dvojo, kamp_num = 3):
         """Считать словарь из файла"""
@@ -38,6 +49,7 @@ class Vortaro:
             split = split + ["" for i in range(self.kamp_num - len(split))]
             values = split[1:]
             self.kore[key] = self.sep.join(values)
+        self.prilabori()
         return self
 
     def subvortaro(self, vortoj):
@@ -47,27 +59,6 @@ class Vortaro:
             key = key.lower()
             new_kore[key] = self.kore.get(key, None)
         return Vortaro(new_kore, kamp_num = self.kamp_num)
-
-    def cxefvortoj_el_radiko(self):
-        """Словарь: radiko -> [cxefvorto_1, cxefvorto_2, ]"""
-        radikoj = self.radikoj(output_format="list")
-        rezulto = {radiko: [] for radiko in radikoj}
-        for cxefvorto in self.kore.keys():
-            radiko = radikigi(cxefvorto)
-            rezulto[radiko].append(cxefvorto)
-        return rezulto
-
-    def radikoj(self, output_format="list"):
-        if output_format == "set":
-            return set(map(lambda x: radikigi(x), self.kore.keys()))
-        elif output_format == "list":
-            return list(map(lambda x: radikigi(x), self.kore.keys()))
-        elif output_format == "dict":
-            return dict(
-                map(lambda x: (x, radikigi(x)), self.kore.keys())
-            )  # Словарь: cxefvorto -> radiko
-        else:
-            return map(lambda x: radikigi(x), self.kore.keys())
 
     def html(self):
         """Вернуть словарь в виде текста в формате html"""
