@@ -1,9 +1,13 @@
 import re
+from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
 from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
+
+OUTPUT_DIR = Path("./output")
+
 
 class Teksto:
     """Класс для обработки текста"""
@@ -96,3 +100,17 @@ class Teksto:
             if vorto in self.nerekonitaj_vortoj:
                 linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
         CelDosiero(dvojo=dvojo).skribi_liniojn(linioj)
+
+    def write_down(self):
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Сохранить морфологический разбор всех слов текста
+        self.skribi_dismorfigon(dvojo=OUTPUT_DIR / "Dismorfemo")
+
+        # Получить словарик для слов из текста
+        self.vortareto.save(dvojo=OUTPUT_DIR / "Vortareto")
+
+        # Сохранить словарные слова
+        self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
+            OUTPUT_DIR / "Vortaraj_vortoj.txt"
+        )

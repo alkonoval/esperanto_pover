@@ -5,8 +5,6 @@ from tkinter import filedialog, messagebox
 
 from modules.teksto import Teksto
 
-OUTPUT_DIR = Path("./output")
-
 
 class MainWindow(tkinter.Frame):
     def __init__(self, parent):
@@ -61,15 +59,8 @@ class MainWindow(tkinter.Frame):
         try:
             teksto = Teksto(teksto=text)
             teksto.prilabori()
+            teksto.write_down()
 
-            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # lazy directory creation
-            teksto.skribi_dismorfigon(dvojo=OUTPUT_DIR / "Dismorfemo")
-
-            teksto.vortareto.save(dvojo=OUTPUT_DIR / "Vortareto")
-
-            teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-                OUTPUT_DIR / "Vortaraj_vortoj.txt"
-            )
             if not len(teksto.vortaraj_vortoj):
                 raise ValueError(
                     "В тексте нет ни одного известного слова на эсперанто!"
@@ -90,12 +81,3 @@ class Application(tkinter.Tk):
 
         # Try to place the window at the center of the screen
         self.eval("tk::PlaceWindow . center")
-
-
-def main():
-    application = Application()
-    application.mainloop()
-
-
-if __name__ == "__main__":
-    main()

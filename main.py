@@ -1,9 +1,12 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
+from modules.gui import Application
 from modules.teksto import Teksto
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
+
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument(
@@ -13,24 +16,20 @@ def parse_args():
         default=TESTTEXT,
         nargs="?",  # argument is optional
     )
+    parser.add_argument(
+        "--gui", help="Запустить графический интерфейс", action="store_true"
+    )
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
 
-    OUTPUT_DIR = Path("./output")
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
-    teksto.prilabori()
-
-    # Сохранить морфологический разбор всех слов текста
-    teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo")
-
-    # Получить словарик для слов из текста
-    teksto.vortareto.save(dvojo = OUTPUT_DIR / "Vortareto")
-
-    # Сохранить словарные слова
-    teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-        OUTPUT_DIR / "Vortaraj_vortoj.txt"
-    )
+    if args.gui:
+        application = Application()
+        application.mainloop()
+    else:
+        teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
+        teksto.prilabori()
+        teksto.write_down()
+        print(f"Словарь сохранен")
