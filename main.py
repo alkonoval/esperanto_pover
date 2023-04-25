@@ -1,8 +1,9 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from modules.gui import Application
+from modules.gui import GUIApplication
 from modules.teksto import Teksto
+import tkinter
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
 
@@ -26,10 +27,15 @@ if __name__ == "__main__":
     args = parse_args()
 
     if args.gui:
-        application = Application()
-        application.mainloop()
+        root = tkinter.Tk()
+        application = GUIApplication(root, args)
+        root.mainloop()
     else:
-        teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
-        teksto.prilabori()
-        teksto.write_down()
-        print(f"Словарь сохранен")
+        try:
+            teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
+            teksto.prilabori()
+            teksto.write_down()
+        except Exception as e:
+            print(e)
+        else:
+            print(f"Словарь сохранен")

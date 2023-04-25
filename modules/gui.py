@@ -10,51 +10,43 @@ class MainWindow(tkinter.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         ttk.Style().theme_use("clam")
-        self.pack(expand=True, fill=tkinter.BOTH)
+        self.pack(expand=True, fill="both")
 
         toolbar = ttk.Frame(self)
-        toolbar.pack(side=tkinter.TOP, fill=tkinter.X)
-
-        ttk.Button(toolbar, text="Из файла…", command=self._from_file).pack(
-            side=tkinter.LEFT
-        )
-
-        ttk.Button(toolbar, text="Вставить", command=self._paste).pack(
-            side=tkinter.LEFT
-        )
-
-        ttk.Button(toolbar, text="Очистить", command=self._clear).pack(
-            side=tkinter.LEFT
-        )
-
-        ttk.Button(toolbar, text="Обработать", command=self._ek).pack(side=tkinter.LEFT)
-
-        ttk.Button(toolbar, text="Выход", command=self.quit).pack(side=tkinter.LEFT)
+        ttk.Button(toolbar, text="Из файла…", command=self._from_file).pack(side="left")
+        ttk.Button(toolbar, text="Вставить", command=self._paste).pack(side="left")
+        ttk.Button(toolbar, text="Очистить", command=self._clear).pack(side="left")
+        ttk.Button(toolbar, text="Обработать", command=self._ek).pack(side="left")
+        ttk.Button(toolbar, text="Выход", command=quit).pack(side="left")
+        toolbar.pack(side="top", fill="x")
 
         self.text_input = tkinter.Text(self)
-        self.text_input.pack(fill=tkinter.BOTH, expand=True)
+        self.text_input.pack(fill="both", expand=True)
 
     def _from_file(self):
         filetypes = [("Text files", "*.txt"), ("All files", "*")]
         filename = filedialog.askopenfilename(filetypes=filetypes)
-        if not filename:
-            return
-        text = Path(filename).read_text()
-        self._clear()
-        self.text_input.insert(0.1, text)
+        if filename:
+            self._load_file(filename)
+
+    def _load_file(self, filename):
+        try:
+            text = Path(filename).read_text()
+        except (UnicodeDecodeError, FileNotFoundError) as e:
+            messagebox.showerror("Ошибка", message=f"Не удалось открыть файл:\n\n{e}")
+        else:
+            self._clear()
+            self.text_input.insert(0.1, text)
 
     def _paste(self):
         text = self.clipboard_get()
-        self.text_input.insert(self.text_input.index(tkinter.INSERT), text)
+        self.text_input.insert(self.text_input.index("insert"), text)
 
     def _clear(self):
-        self.text_input.delete(0.1, tkinter.END)
+        self.text_input.delete(0.1, "end")
 
     def _ek(self):
-        text = self.text_input.get(0.1, tkinter.END).strip()
-        if not text:
-            messagebox.showerror("Error", "Введите текст на эсперанто")
-            return
+        text = self.text_input.get(0.1, "end").strip()
 
         try:
             teksto = Teksto(teksto=text)
@@ -72,12 +64,18 @@ class MainWindow(tkinter.Frame):
             messagebox.showinfo(title="OK", message=message)
 
 
-class Application(tkinter.Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.title("PoshaVortaroEoRu")
-        self.main_window = MainWindow(self)
+class GUIApplication:
+    def __init__(self, master, args):
+        self.args = args
+
+        self.master = master
+        self.master.title("PoshaVortaroEoRu")
+
+        self.main_window = MainWindow(master)
         self.main_window.pack(expand=True)
 
         # Try to place the window at the center of the screen
-        self.eval("tk::PlaceWindow . center")
+        self.master.eval("tk::PlaceWindow . center")
+
+        if self.args:
+            self.main_window._load_file(args.filename)
