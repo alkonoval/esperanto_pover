@@ -51,9 +51,9 @@ class MainWindow(tkinter.Frame):
         try:
             teksto = Teksto(teksto=text)
             teksto.prilabori()
-            teksto.write_down()
-
-            if not len(teksto.vortaraj_vortoj):
+            if len(teksto.vortaraj_vortoj):
+                teksto.write_down()
+            else:
                 raise ValueError(
                     "В тексте нет ни одного известного слова на эсперанто!"
                 )
