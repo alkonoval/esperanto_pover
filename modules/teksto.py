@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
-from .dosierojn_ls import CelDosiero
+from .dosierojn_ls import sen_x_igi
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
 
@@ -99,7 +99,8 @@ class Teksto:
                     vortaraj_vortoj.append(vortara_vorto)
             if vorto in self.nerekonitaj_vortoj:
                 linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
-        CelDosiero(dvojo=dvojo).skribi_liniojn(linioj)
+        output = sen_x_igi('\n'.join(linioj))
+        Path(dvojo).write_text(output, encoding="utf-8")
 
     def write_down(self):
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

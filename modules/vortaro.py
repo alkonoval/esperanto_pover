@@ -1,7 +1,7 @@
 import configparser 
 from pathlib import Path
 
-from .dosierojn_ls import CelDosiero, x_igi
+from .dosierojn_ls import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
@@ -100,8 +100,8 @@ class Vortaro:
             print("Eraro: Maltauxga dosiertipo:", dvojo.suffix)
             print("Tauxgaj dosiertipoj:", ", ".join(switch.keys()))
             return
-        output = switch[dvojo.suffix]()
-        CelDosiero(dvojo).skribi(output)
+        output = sen_x_igi(switch[dvojo.suffix]())
+        Path(dvojo).write_text(output, encoding="utf-8")
 
 
 vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)

@@ -34,25 +34,3 @@ def sen_x_igi(teksto):
         .replace("UX", "Ŭ")
     )
     return rez
-
-class CelDosiero:
-    """Файл для записи"""
-
-    def __init__(self, dvojo, encoding="utf-8", formatilo=sen_x_igi):
-        self.dvojo = dvojo
-        self.encoding = encoding
-        self.formatilo = formatilo
-
-    def skribi(self, teksto):
-        with open(self.dvojo, "w", encoding=self.encoding) as dosiero:
-            dosiero.write(self.formatilo(teksto))
-
-    def skribi_liniojn(self, linioj):
-        output = "\n".join(linioj)
-        self.skribi(output)
-
-    def skribi_vortliston(self, vortoj):
-        self.skribi_liniojn(vortoj)
-
-    def skribi_dict(self, dic, sep="\t"):
-        self.skribi_liniojn([f"{key}{sep}{val}" for key, val in dic.items()])
