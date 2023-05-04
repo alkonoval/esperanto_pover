@@ -2,18 +2,17 @@ import re
 from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
-from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
+from .dosierojn_ls import CelDosiero, FontDosiero
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
 
 OUTPUT_DIR = Path("./output")
 
-
 class Teksto:
     """Класс для обработки текста"""
 
     def __init__(self, teksto=""):
-        self.teksto = x_igi(teksto)
+        self.teksto = teksto
 
     def elsxuti_el_dosieron(self, dvojo):
         self.teksto = FontDosiero(dvojo).legi()
@@ -37,7 +36,8 @@ class Teksto:
 
     def __spliti_al_vortoj(self, ignori_nombrojn=True):
         """Выдать слова, встречающиеся в тексте"""
-        vortoj = re.findall("[a-z'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
+        
+        vortoj = re.findall("[a-zĉĝĥĵŝŭ'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
             rezulto = list(filter(lambda x: not x.isdigit(), rezulto))

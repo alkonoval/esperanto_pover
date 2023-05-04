@@ -1,7 +1,7 @@
 import configparser 
 from pathlib import Path
 
-from .dosierojn_ls import CelDosiero, FontDosiero
+from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
@@ -17,8 +17,11 @@ def radikigi(vortara_vorto):
     )
 
 class Vortaro:
+    """
+    Словарь: слово на эсперанто -> значение
+    """
     def __init__(self, kore={}, kamp_num = 2):
-        self.kore = kore
+        self.kore = {x_igi(key) : value for key, value in kore.items()}
         # выводится в качестве значения слова, если значение слова не определено
         self.nomo_por_None = "@ не определено"
         self.sep = "\t"
@@ -42,7 +45,7 @@ class Vortaro:
         for row in linioj:
             # разбить строку на kamp_num полей
             split = row.strip().split(self.sep, maxsplit=self.kamp_num-1)
-            key = split[0].lower()
+            key = x_igi(split[0].lower())
             if key.isspace():
                 continue
             # дополнить недостающие поля до числа kamp_num

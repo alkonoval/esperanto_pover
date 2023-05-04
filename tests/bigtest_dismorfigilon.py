@@ -2,7 +2,7 @@ import unittest
 from unittest import TestCase
 
 from modules.dismorfemigilo import Dismorfemo
-from modules.dosierojn_ls import x_igi, sen_x_igi
+from modules.dosierojn_ls import sen_x_igi
 from modules.lingvaj_konstantoj import VORTETOJ
 
 class TestClient(TestCase):

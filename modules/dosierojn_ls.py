@@ -38,7 +38,7 @@ def sen_x_igi(teksto):
 class FontDosiero:
     """Файл для чтения"""
 
-    def __init__(self, dvojo, encoding="utf-8-sig", formatilo=x_igi):
+    def __init__(self, dvojo, encoding="utf-8-sig", formatilo=lambda x: x):
         self.dvojo = dvojo
         self.encoding = encoding
         self.formatilo = formatilo
