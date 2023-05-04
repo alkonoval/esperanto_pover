@@ -1,13 +1,8 @@
-import configparser 
 from pathlib import Path
 
 from .tformatilo import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
-
-config = configparser.ConfigParser()  # создаём объекта парсера
-config.read("config.ini")
-BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
 
 def radikigi(vortara_vorto):
     return senfinajxigi(
@@ -102,6 +97,3 @@ class Vortaro:
             return
         output = sen_x_igi(switch[dvojo.suffix]())
         Path(dvojo).write_text(output, encoding="utf-8")
-
-
-vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)

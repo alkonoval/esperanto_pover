@@ -4,6 +4,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox
 
 from modules.teksto import Teksto
+from modules.vortaro import Vortaro
 
 
 class MainWindow(tkinter.Frame):
@@ -37,6 +38,14 @@ class MainWindow(tkinter.Frame):
         else:
             self._clear()
             self.text_input.insert(0.1, text)
+    
+    def _load_dict(self, dictname):
+        try:
+            main_dictionary = Vortaro().elsxuti_el_dosieron(dictname, kamp_num=3)
+        except (UnicodeDecodeError, FileNotFoundError) as e:
+            messagebox.showerror("Ошибка", message=f"Не удалось открыть файл:\n\n{e}")
+        else:
+            self.main_dictionary = main_dictionary
 
     def _paste(self):
         text = self.clipboard_get()
@@ -49,7 +58,7 @@ class MainWindow(tkinter.Frame):
         text = self.text_input.get(0.1, "end").strip()
 
         try:
-            teksto = Teksto(teksto=text)
+            teksto = Teksto(text, self.main_dictionary)
             teksto.prilabori()
             if len(teksto.vortaraj_vortoj):
                 teksto.write_down()
@@ -79,3 +88,4 @@ class GUIApplication:
 
         if self.args:
             self.main_window._load_file(args.filename)
+        self.main_window._load_dict(args.dict)

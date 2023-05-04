@@ -1,12 +1,18 @@
+import configparser
 from argparse import ArgumentParser
 from pathlib import Path
 
+from modules.vortaro import Vortaro
 from modules.gui import GUIApplication
 from modules.teksto import Teksto
 import tkinter
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
 
+config = configparser.ConfigParser()  # создаём объекта парсера
+config.read("config.ini")
+#BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
+BAZAVORTARO = Path(config['Paths']['main_dictionary'])
 
 def parse_args():
     parser = ArgumentParser()
@@ -20,6 +26,13 @@ def parse_args():
     parser.add_argument(
         "--gui", help="Запустить графический интерфейс", action="store_true"
     )
+    parser.add_argument(
+        "--dict",
+        help="Имя файла словаря",
+        type=Path,
+        default=BAZAVORTARO,
+        nargs="?",  # argument is optional
+    )
     return parser.parse_args()
 
 
@@ -32,8 +45,9 @@ if __name__ == "__main__":
         root.mainloop()
     else:
         try:
+            vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
             texto = Path(args.filename).read_text(encoding="utf-8-sig")
-            teksto = Teksto(texto)
+            teksto = Teksto(texto, vortaro)
             teksto.prilabori()
             teksto.write_down()
         except Exception as e:

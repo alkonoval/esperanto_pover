@@ -4,14 +4,15 @@ from pathlib import Path
 from .dismorfemigilo import Dismorfemo, rafini_vorton
 from .tformatilo import sen_x_igi
 from .utils import forigi_ripetojn_konservante_ordon
-from .vortaro import vortaro, Vortaro
+from .vortaro import Vortaro
 
 OUTPUT_DIR = Path("./output")
 
 class Teksto:
     """Класс для обработки текста"""
 
-    def __init__(self, teksto):
+    def __init__(self, teksto, vortaro):
+        self.vortaro = vortaro
         self.teksto = teksto
 
     def prilabori(self):
@@ -26,7 +27,7 @@ class Teksto:
         # список слов из словаря, которые встречаются в тексте в качестве корней
         self.vortaraj_vortoj = self.__ricevi_vortarajn_vortojn()
         # словарик для текста
-        self.vortareto = vortaro.subvortaro(
+        self.vortareto = self.vortaro.subvortaro(
             self.nerekonitaj_vortoj + self.vortaraj_vortoj
         )
 
@@ -41,10 +42,10 @@ class Teksto:
 
     def __dismorfigi(self):
         """Получить словарь: слово -> класс с морфологическими разборами для него"""
-        return {vorto : Dismorfemo(vorto) for vorto in self.vortoj}
+        return {vorto : Dismorfemo(vorto, self.vortaro) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
-        cxefvortoj_el = vortaro.cxefvortoj_el_radiko
+        cxefvortoj_el = self.vortaro.cxefvortoj_el_radiko
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
             vortaraj_vortoj_por_vorto = []

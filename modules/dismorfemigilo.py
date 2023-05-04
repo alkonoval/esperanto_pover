@@ -4,7 +4,6 @@ from functools import reduce
 from .tformatilo import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ
 from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
-from .vortaro import vortaro
 
 class Disigo(list):
     """ Представление разбора слова на морфемы в виде: [(mor_1, tip_n), ..., (mor_n, tip_n)],
@@ -219,17 +218,15 @@ def rafini_jn_vorteton(vorto):
 class Dismorfemo:
     """ Разборы слова на морфемы """
 
-    def __init__(self, vorto,
-                cxiuj_vortaraj_radikoj = vortaro.radikoj
-        ):
+    def __init__(self, vorto, vortaro):
         # Слово для морфологического разбора
         self.vorto = x_igi(vorto.lower())
         # Основа слова
         self.radikalo = senfinajxigi(
             self.vorto, finajxoj=MORFEMARO.finajxoj, esceptoj=LEKSEMARO.cxiuj_vortetoj
         )
-        # Все подстроки слова, которые встречаются в множестве cxiuj_vortaraj_radikoj
-        self.eblaj_radikoj = self._ricevi_eblajn_radikojn(cxiuj_vortaraj_radikoj)
+        # Все подстроки слова, которые встречаются в множестве vortaro.radikoj
+        self.eblaj_radikoj = self._ricevi_eblajn_radikojn(vortaro.radikoj)
         # Порождающая грамматика, посредством которой будет производиться разбор слова
         self.gramatiko = VortEoGramatiko(radikoj=self.eblaj_radikoj)
         # Все возможные разборы слова на морфемы, упорядоченные по весу
@@ -241,7 +238,7 @@ class Dismorfemo:
             min_pezo = self.senlimigaj_disigoj[0].pezo()
             self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
             
-        # Встречающиеся в лучших разборах корни из cxiuj_vortaraj_radikoj
+        # Встречающиеся в лучших разборах корни из vortaro.radikoj
         self.radikoj = forigi_ripetojn_konservante_ordon(
             self.ricevi_morfemojn(lambda tipo: tipo == "R")
         )
