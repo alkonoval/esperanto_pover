@@ -31,7 +31,7 @@ class MainWindow(tkinter.Frame):
 
     def _load_file(self, filename):
         try:
-            text = Path(filename).read_text()
+            text = Path(filename).read_text(encoding="utf-8-sig")
         except (UnicodeDecodeError, FileNotFoundError) as e:
             messagebox.showerror("Ошибка", message=f"Не удалось открыть файл:\n\n{e}")
         else:
