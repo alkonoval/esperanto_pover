@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
-from .dosierojn_ls import sen_x_igi
+from .tformatilo import sen_x_igi
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
 

@@ -1,7 +1,7 @@
 import re
 from functools import reduce
 
-from .dosierojn_ls import x_igi, sen_x_igi
+from .tformatilo import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO, VORTETOJ
 from .utils import forigi_ripetojn_konservante_ordon, senfinajxigi
 from .vortaro import vortaro

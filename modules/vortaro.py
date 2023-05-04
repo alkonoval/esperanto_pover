@@ -1,7 +1,7 @@
 import configparser 
 from pathlib import Path
 
-from .dosierojn_ls import x_igi, sen_x_igi
+from .tformatilo import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
