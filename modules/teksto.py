@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
-from .dosierojn_ls import CelDosiero, FontDosiero
+from .dosierojn_ls import CelDosiero
 from .utils import forigi_ripetojn_konservante_ordon
 from .vortaro import vortaro, Vortaro
 
@@ -15,7 +15,7 @@ class Teksto:
         self.teksto = teksto
 
     def elsxuti_el_dosieron(self, dvojo):
-        self.teksto = FontDosiero(dvojo).legi()
+        self.teksto = Path(dvojo).read_text(encoding="utf-8-sig")
         return self
 
     def prilabori(self):

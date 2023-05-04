@@ -35,39 +35,6 @@ def sen_x_igi(teksto):
     )
     return rez
 
-class FontDosiero:
-    """Файл для чтения"""
-
-    def __init__(self, dvojo, encoding="utf-8-sig", formatilo=lambda x: x):
-        self.dvojo = dvojo
-        self.encoding = encoding
-        self.formatilo = formatilo
-
-    def legi(self):
-        """Прочитать файл, результат чтения выдать как одну большую строку"""
-        with open(self.dvojo, "r", encoding=self.encoding) as dosiero:
-            rezulto = self.formatilo(dosiero.read())
-        return rezulto
-
-    def legi_liniojn(self):
-        """Прочитать файл, результат чтения выдать как list строк"""
-        with open(self.dvojo, "r", encoding=self.encoding) as dosiero:
-            rezulto = [self.formatilo(linio) for linio in dosiero.readlines()]
-        return rezulto
-
-    def legi_vortliston(self):
-        """
-        Считать список слов из файла. Предополается, что в файле каждое слово
-        расположено на отдельной строке.
-        """
-        linioj = self.legi_liniojn()
-        vortoj = []
-        for linio in linioj:
-            vorto = linio.strip()
-            if vorto not in vortoj:
-                vortoj.append(vorto)
-        return vortoj
-
 class CelDosiero:
     """Файл для записи"""
 

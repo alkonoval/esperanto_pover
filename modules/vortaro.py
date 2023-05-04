@@ -1,7 +1,7 @@
 import configparser 
 from pathlib import Path
 
-from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
+from .dosierojn_ls import CelDosiero, x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
 
@@ -41,7 +41,7 @@ class Vortaro:
     def elsxuti_el_dosieron(self, dvojo, kamp_num = 3):
         """Считать словарь из файла"""
         self.kamp_num = kamp_num
-        linioj = FontDosiero(dvojo).legi_liniojn()
+        linioj = Path(dvojo).read_text().splitlines()
         for row in linioj:
             # разбить строку на kamp_num полей
             split = row.strip().split(self.sep, maxsplit=self.kamp_num-1)
