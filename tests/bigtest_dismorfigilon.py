@@ -1,9 +1,17 @@
+import configparser
 import unittest
+from pathlib import Path
 from unittest import TestCase
 
+from modules.vortaro import Vortaro
 from modules.dismorfemigilo import Dismorfemo
 from modules.tformatilo import sen_x_igi
 from modules.lingvaj_konstantoj import VORTETOJ
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
+vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
 
 class TestClient(TestCase):
     def setUp(self):
@@ -19,7 +27,7 @@ class TestClient(TestCase):
         vortnum = {}
         erarlinioj = []
         for vorto, gxusta_disigo in gxustaj_disigoj.items():
-            disigoj = Dismorfemo(vorto).disigoj
+            disigoj = Dismorfemo(vorto, vortaro).disigoj
             disignum = len(disigoj)
             #self.assertEqual(disignum, 1) # есть только один хороший разбор
             if not disigoj:
