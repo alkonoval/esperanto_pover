@@ -32,7 +32,8 @@ if __name__ == "__main__":
         root.mainloop()
     else:
         try:
-            teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
+            texto = Path(args.filename).read_text(encoding="utf-8-sig")
+            teksto = Teksto(texto)
             teksto.prilabori()
             teksto.write_down()
         except Exception as e:

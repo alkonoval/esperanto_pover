@@ -11,12 +11,8 @@ OUTPUT_DIR = Path("./output")
 class Teksto:
     """Класс для обработки текста"""
 
-    def __init__(self, teksto=""):
+    def __init__(self, teksto):
         self.teksto = teksto
-
-    def elsxuti_el_dosieron(self, dvojo):
-        self.teksto = Path(dvojo).read_text(encoding="utf-8-sig")
-        return self
 
     def prilabori(self):
         # список всех слов (без повторений), встречающихся в тексте 
