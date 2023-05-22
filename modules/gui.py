@@ -3,8 +3,8 @@ import tkinter.ttk as ttk
 from pathlib import Path
 from tkinter import filedialog, messagebox
 
-from modules.teksto import Teksto
-from modules.vortaro import Vortaro
+from modules.teksto import Analizilo
+from modules.vortaro import DBController
 
 
 class MainWindow(tkinter.Frame):
@@ -41,11 +41,12 @@ class MainWindow(tkinter.Frame):
     
     def _load_dict(self, dictname):
         try:
-            main_dictionary = Vortaro().elsxuti_el_dosieron(dictname, kamp_num=3)
+            database = DBController()
+            database.fill_dictionary_from(str(dictname))
         except (UnicodeDecodeError, FileNotFoundError) as e:
             messagebox.showerror("Ошибка", message=f"Не удалось открыть файл:\n\n{e}")
         else:
-            self.main_dictionary = main_dictionary
+            self.database = database
 
     def _paste(self):
         text = self.clipboard_get()
@@ -58,8 +59,8 @@ class MainWindow(tkinter.Frame):
         text = self.text_input.get(0.1, "end").strip()
 
         try:
-            teksto = Teksto(text, self.main_dictionary)
-            teksto.prilabori()
+            teksto = Analizilo(self.database)
+            teksto.prilabori(text)
             if len(teksto.vortaraj_vortoj):
                 teksto.write_down()
             else:

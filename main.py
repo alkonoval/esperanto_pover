@@ -2,16 +2,15 @@ import configparser
 from argparse import ArgumentParser
 from pathlib import Path
 
-from modules.vortaro import Vortaro
+from modules.vortaro import DBController
 from modules.gui import GUIApplication
-from modules.teksto import Teksto
+from modules.teksto import Analizilo
 import tkinter
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
 
 config = configparser.ConfigParser()  # создаём объекта парсера
 config.read("config.ini")
-#BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
 BAZAVORTARO = Path(config['Paths']['main_dictionary'])
 
 def parse_args():
@@ -44,13 +43,11 @@ if __name__ == "__main__":
         application = GUIApplication(root, args)
         root.mainloop()
     else:
-        try:
-            vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
-            texto = Path(args.filename).read_text(encoding="utf-8-sig")
-            teksto = Teksto(texto, vortaro)
-            teksto.prilabori()
-            teksto.write_down()
-        except Exception as e:
-            print(e)
-        else:
-            print(f"Словарь сохранен")
+        database = DBController()
+        database.fill_dictionary_from(str(BAZAVORTARO))
+        
+        texto = Path(args.filename).read_text(encoding="utf-8-sig")
+        analizilo = Analizilo(database)
+        analizilo.prilabori(texto)
+        analizilo.write_down()
+        print("Словарь сохранен")

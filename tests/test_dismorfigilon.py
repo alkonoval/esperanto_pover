@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest import TestCase
 
-from modules.vortaro import Vortaro
+from modules.vortaro import DBController
 from modules.dismorfemigilo import Dismorfemo
 from modules.tformatilo import sen_x_igi
 from modules.lingvaj_konstantoj import VORTETOJ
@@ -11,7 +11,10 @@ from modules.lingvaj_konstantoj import VORTETOJ
 config = configparser.ConfigParser()
 config.read("config.ini")
 BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
-vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
+
+database = DBController()
+database.fill_dictionary_from(str(BAZAVORTARO))
+vortaraj_radikoj = database.get_roots()
 
 class TestClient(TestCase):
     def setUp(self):
@@ -44,7 +47,7 @@ class TestClient(TestCase):
             "kuspita" : "kusp-it-a"
         }
         for vorto, gxusta_disigo in gxustaj_disigoj.items():
-            disigoj = Dismorfemo(vorto, vortaro).disigoj
+            disigoj = Dismorfemo(vorto, vortaraj_radikoj).disigoj
             self.assertEqual(len(disigoj), 1) # есть только один хороший разбор
             aspekto_de_plejbona_disigo = str(disigoj[0])
             self.assertEqual(aspekto_de_plejbona_disigo, gxusta_disigo)
@@ -56,13 +59,13 @@ class TestClient(TestCase):
             "pikradetoj" : set(["pik-rad-et-oj", "pi-krad-et-oj"]),
         }
         for vorto in gxustaj_disigoj.keys():
-            disigoj = Dismorfemo(vorto, vortaro).disigoj
+            disigoj = Dismorfemo(vorto, vortaraj_radikoj).disigoj
             aspekto_por_disigoj = set(map(lambda x: str(x), disigoj))
             self.assertEqual(aspekto_por_disigoj, gxustaj_disigoj[vorto])
 
     def test_vortetojn(self):
         for vorto in VORTETOJ.cxiuj:
-            disigoj = Dismorfemo(vorto, vortaro).disigoj
+            disigoj = Dismorfemo(vorto, vortaraj_radikoj).disigoj
             self.assertEqual(len(disigoj), 1) # есть только один хороший разбор
             aspekto_de_plejbona_disigo = str(disigoj[0])
             self.assertEqual(aspekto_de_plejbona_disigo, sen_x_igi(vorto))

@@ -218,15 +218,15 @@ def rafini_jn_vorteton(vorto):
 class Dismorfemo:
     """ Разборы слова на морфемы """
 
-    def __init__(self, vorto, vortaro):
+    def __init__(self, vorto, vortaraj_radikoj):
         # Слово для морфологического разбора
         self.vorto = x_igi(vorto.lower())
         # Основа слова
         self.radikalo = senfinajxigi(
             self.vorto, finajxoj=MORFEMARO.finajxoj, esceptoj=LEKSEMARO.cxiuj_vortetoj
         )
-        # Все подстроки слова, которые встречаются в множестве vortaro.radikoj
-        self.eblaj_radikoj = self._ricevi_eblajn_radikojn(vortaro.radikoj)
+        # Все подстроки слова, которые встречаются в множестве vortaraj_radikoj
+        self.eblaj_radikoj = self._ricevi_eblajn_radikojn(vortaraj_radikoj)
         # Порождающая грамматика, посредством которой будет производиться разбор слова
         self.gramatiko = VortEoGramatiko(radikoj=self.eblaj_radikoj)
         # Все возможные разборы слова на морфемы, упорядоченные по весу
@@ -238,7 +238,7 @@ class Dismorfemo:
             min_pezo = self.senlimigaj_disigoj[0].pezo()
             self.disigoj = list(filter(lambda x: x.pezo() == min_pezo, self.senlimigaj_disigoj))
             
-        # Встречающиеся в лучших разборах корни из vortaro.radikoj
+        # Встречающиеся в лучших разборах корни из vortaraj_radikoj
         self.radikoj = forigi_ripetojn_konservante_ordon(
             self.ricevi_morfemojn(lambda tipo: tipo == "R")
         )

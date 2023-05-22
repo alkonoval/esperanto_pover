@@ -4,18 +4,19 @@ from pathlib import Path
 from .dismorfemigilo import Dismorfemo, rafini_vorton
 from .tformatilo import sen_x_igi
 from .utils import forigi_ripetojn_konservante_ordon
-from .vortaro import Vortaro
+from .vortaro import html
 
 OUTPUT_DIR = Path("./output")
 
-class Teksto:
+class Analizilo:
     """Класс для обработки текста"""
 
-    def __init__(self, teksto, vortaro):
-        self.vortaro = vortaro
-        self.teksto = teksto
+    def __init__(self, database):
+        self.database = database
+        self.vortaraj_radikoj = self.database.get_roots()
 
-    def prilabori(self):
+    def prilabori(self, teksto):
+        self.teksto = teksto
         # список всех слов (без повторений), встречающихся в тексте 
         self.vortoj = self.__spliti_al_vortoj() 
         # dict: слово из текста -> класс с морфологическими разборами для него
@@ -27,7 +28,7 @@ class Teksto:
         # список слов из словаря, которые встречаются в тексте в качестве корней
         self.vortaraj_vortoj = self.__ricevi_vortarajn_vortojn()
         # словарик для текста
-        self.vortareto = self.vortaro.subvortaro(
+        self.vortareto = self.database.get_litle_dictionary(
             self.nerekonitaj_vortoj + self.vortaraj_vortoj
         )
 
@@ -42,15 +43,15 @@ class Teksto:
 
     def __dismorfigi(self):
         """Получить словарь: слово -> класс с морфологическими разборами для него"""
-        return {vorto : Dismorfemo(vorto, self.vortaro) for vorto in self.vortoj}
+        return {vorto : Dismorfemo(vorto, self.vortaraj_radikoj) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
-        cxefvortoj_el = self.vortaro.cxefvortoj_el_radiko
+        cxefvortoj_el = self.database.get_words_from_root
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
             vortaraj_vortoj_por_vorto = []
             for radiko in self.dismorfigo_por[vorto].radikoj:
-                vortaraj_vortoj_por_vorto += cxefvortoj_el[radiko]
+                vortaraj_vortoj_por_vorto += cxefvortoj_el(radiko)
             vortaraj_vortoj_por_vorto += self.dismorfigo_por[vorto].vortetoj
 
             vortaraj_vortoj_por[vorto] = forigi_ripetojn_konservante_ordon(
@@ -72,18 +73,6 @@ class Teksto:
             vortaraj_vortoj += self.vortaraj_vortoj_por[vorto]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
 
-    def skribi_dismorfigon(self, dvojo, plendetala=False):
-        if plendetala:
-            kore_por_vortaro = {
-                vorto: str(vdis.senlimigaj_disigoj)
-                for vorto, vdis in self.dismorfigo_por.items()
-            }
-        else:
-            kore_por_vortaro = {
-                vorto: str(vdis) for vorto, vdis in self.dismorfigo_por.items()
-            }
-        Vortaro(kore_por_vortaro).save(dvojo=dvojo)
-
     def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(self, dvojo):
         linioj = []
         vortaraj_vortoj = []
@@ -103,10 +92,16 @@ class Teksto:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
         # Сохранить морфологический разбор всех слов текста
-        self.skribi_dismorfigon(dvojo=OUTPUT_DIR / "Dismorfemo")
+        output = [
+            (sen_x_igi(vorto), ', '.join([str(d) for d in vdis.senlimigaj_disigoj]))
+            for vorto, vdis in self.dismorfigo_por.items()
+        ]
+        output = html(output)
+        Path(OUTPUT_DIR / "Dismorfemo.html").write_text(output, encoding="utf-8")
 
         # Получить словарик для слов из текста
-        self.vortareto.save(dvojo=OUTPUT_DIR / "Vortareto")
+        output = html(self.vortareto)
+        Path(OUTPUT_DIR / "Vortareto.html").write_text(output, encoding="utf-8")
 
         # Сохранить словарные слова
         self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
