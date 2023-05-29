@@ -22,7 +22,6 @@ class DBController:
         """Считать базу данных из текстового файла"""
         table = "eo_ru"
         self.cursor.execute(f"DROP TABLE IF EXISTS {table}")
-        columns_num = 4
         self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table}(
                                 word TEXT PRIMARY KEY,
                                 root TEXT,
@@ -30,17 +29,19 @@ class DBController:
                                 comment TEXT
                                 ) WITHOUT ROWID""")
         lines = Path(filename).read_text(encoding = "utf-8-sig").splitlines()
+        columns_num = 3 # in the file 3 columns: word, description, comment
         for line in lines:
             split = line.strip().split(sep, maxsplit = columns_num - 1)
             if split[0].isspace() or split[0] == '':
                 continue
             split = split + ["" for i in range(columns_num - len(split))]
+            word, description, comment = split
             if preprocessing:
-                split[0] = x_igi(split[0].lower()) # word
-                split[1] = radikigi(split[0]) # root
+                word = x_igi(word.lower()) # word
+            root = radikigi(word) # root
             self.cursor.execute(
-                f"INSERT INTO {table} VALUES ({', '.join(['?'] * columns_num)})",
-                split
+                f"INSERT INTO {table} VALUES (?, ?, ?, ?)",
+                (word, root, description, comment)
             )
         self.cursor.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS ind_word ON {table} (word)")
         self.cursor.execute(f"CREATE INDEX IF NOT EXISTS ind_root ON {table} (root)")
