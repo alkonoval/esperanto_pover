@@ -18,7 +18,7 @@ class Analizilo:
     def prilabori(self, teksto):
         self.teksto = teksto
         # список всех слов (без повторений), встречающихся в тексте 
-        self.vortoj = self.__spliti_al_vortoj() 
+        self.vortoj_kun_ripetoj, self.vortoj = self.__spliti_al_vortoj() 
         # dict: слово из текста -> класс с морфологическими разборами для него
         self.dismorfigo_por = self.__dismorfigi()
         # dict: слово из текста -> список слов из словаря, которые встречаются в этом слове в качестве корня
@@ -39,7 +39,7 @@ class Analizilo:
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
             rezulto = list(filter(lambda x: not x.isdigit(), rezulto))
-        return rezulto
+        return vortoj, rezulto
 
     def __dismorfigi(self):
         """Получить словарь: слово -> класс с морфологическими разборами для него"""
@@ -87,6 +87,16 @@ class Analizilo:
                 linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
         output = sen_x_igi('\n'.join(linioj))
         Path(dvojo).write_text(output, encoding="utf-8")
+    
+    def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj_2(self, dvojo):
+        linioj = []
+        for vorto in self.vortoj_kun_ripetoj:
+            for vortara_vorto in self.vortaraj_vortoj_por.get(vorto, [vorto]):
+                linioj.append(f"{vorto}\t{vortara_vorto}")
+            if vorto in self.nerekonitaj_vortoj:
+                linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
+        output = sen_x_igi('\n'.join(linioj))
+        Path(dvojo).write_text(output, encoding="utf-8")
 
     def write_down(self):
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -106,4 +116,9 @@ class Analizilo:
         # Сохранить словарные слова
         self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
             OUTPUT_DIR / "Vortaraj_vortoj.txt"
+        )
+
+        # Сохранить таблицу <слово из текста> <словарное слово>.
+        self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj_2(
+            OUTPUT_DIR / "Vortaraj_vortoj_kun_origino.txt"
         )
