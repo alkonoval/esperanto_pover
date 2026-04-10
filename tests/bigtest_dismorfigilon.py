@@ -1,9 +1,20 @@
+import configparser
 import unittest
+from pathlib import Path
 from unittest import TestCase
 
+from modules.vortaro import DBController
 from modules.dismorfemigilo import Dismorfemo
-from modules.dosierojn_ls import x_igi, sen_x_igi
+from modules.tformatilo import sen_x_igi
 from modules.lingvaj_konstantoj import VORTETOJ
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
+
+database = DBController()
+database.fill_dictionary_from(str(BAZAVORTARO))
+vortaraj_radikoj = database.get_roots()
 
 class TestClient(TestCase):
     def setUp(self):
@@ -19,7 +30,7 @@ class TestClient(TestCase):
         vortnum = {}
         erarlinioj = []
         for vorto, gxusta_disigo in gxustaj_disigoj.items():
-            disigoj = Dismorfemo(vorto).disigoj
+            disigoj = Dismorfemo(vorto, vortaraj_radikoj).disigoj
             disignum = len(disigoj)
             #self.assertEqual(disignum, 1) # есть только один хороший разбор
             if not disigoj:

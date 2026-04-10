@@ -1,13 +1,9 @@
-import configparser 
 from pathlib import Path
+import sqlite3
 
-from .dosierojn_ls import CelDosiero, FontDosiero
+from .tformatilo import x_igi, sen_x_igi
 from .lingvaj_konstantoj import LEKSEMARO, MORFEMARO
 from .utils import senfinajxigi
-
-config = configparser.ConfigParser()  # создаём объекта парсера
-config.read("config.ini")
-BAZAVORTARO = Path(__file__).parent.parent.joinpath(config['Paths']['main_dictionary'])
 
 def radikigi(vortara_vorto):
     return senfinajxigi(
@@ -16,89 +12,95 @@ def radikigi(vortara_vorto):
         esceptoj=MORFEMARO.afiksoj + LEKSEMARO.cxiuj_vortetoj,
     )
 
-class Vortaro:
-    def __init__(self, kore={}, kamp_num = 2):
-        self.kore = kore
-        # выводится в качестве значения слова, если значение слова не определено
-        self.nomo_por_None = "@ не определено"
-        self.sep = "\t"
-        self.kamp_num = kamp_num # число колонок словаря (включая key)
-        self.prilabori()
+class DBController:
+    def __init__(self, filename = ":memory:"):
+        self.connection = sqlite3.connect(filename)
+        self.cursor = self.connection.cursor()
+        self.connection.commit()
     
-    def prilabori(self):
-        # Множество корней словарных слов
-        self.radikoj = set(map(lambda x: radikigi(x), self.kore.keys()))
-        # Словарь: radiko -> [cxefvorto_1, cxefvorto_2, ]
-        cxefvortoj_el = {radiko: [] for radiko in self.radikoj}
-        for cxefvorto in self.kore.keys():
-            radiko = radikigi(cxefvorto)
-            cxefvortoj_el[radiko].append(cxefvorto)
-        self.cxefvortoj_el_radiko = cxefvortoj_el
-
-    def elsxuti_el_dosieron(self, dvojo, kamp_num = 3):
-        """Считать словарь из файла"""
-        self.kamp_num = kamp_num
-        linioj = FontDosiero(dvojo).legi_liniojn()
-        for row in linioj:
-            # разбить строку на kamp_num полей
-            split = row.strip().split(self.sep, maxsplit=self.kamp_num-1)
-            key = split[0].lower()
-            if key.isspace():
+    def fill_dictionary_from(self, filename, sep = "\t", preprocessing = True):
+        """Считать базу данных из текстового файла"""
+        table = "eo_ru"
+        self.cursor.execute(f"DROP TABLE IF EXISTS {table}")
+        self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table}(
+                                word TEXT PRIMARY KEY,
+                                root TEXT,
+                                description TEXT,
+                                comment TEXT
+                                ) WITHOUT ROWID""")
+        lines = Path(filename).read_text(encoding = "utf-8-sig").splitlines()
+        columns_num = 3 # in the file 3 columns: word, description, comment
+        for line in lines:
+            split = line.strip().split(sep, maxsplit = columns_num - 1)
+            if split[0].isspace() or split[0] == '':
                 continue
-            # дополнить недостающие поля до числа kamp_num
-            split = split + ["" for i in range(self.kamp_num - len(split))]
-            values = split[1:]
-            self.kore[key] = self.sep.join(values)
-        self.prilabori()
-        return self
+            split = split + ["" for i in range(columns_num - len(split))]
+            word, description, comment = split
+            if preprocessing:
+                word = x_igi(word.lower()) # word
+            root = radikigi(word) # root
+            self.cursor.execute(
+                f"INSERT INTO {table} VALUES (?, ?, ?, ?)",
+                (word, root, description, comment)
+            )
+        self.cursor.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS ind_word ON {table} (word)")
+        self.cursor.execute(f"CREATE INDEX IF NOT EXISTS ind_root ON {table} (root)")
+        self.connection.commit()
+    
+    def get_litle_dictionary(self, words):
+        result = []
+        for word in words:
+            self.cursor.execute(
+                'SELECT word, description, comment FROM eo_ru WHERE word = ?',
+                (word,)
+            )
+            result += self.cursor.fetchall()
+        return result
+    
+    def get_roots(self):
+        self.cursor.execute(
+            'SELECT DISTINCT root FROM eo_ru'
+        )
+        rezult = {x[0] for x in self.cursor.fetchall()}
+        return rezult
+    
+    def get_words_from_root(self, root):
+        self.cursor.execute(
+            'SELECT word FROM eo_ru WHERE root = ?',
+            (root,)
+        )
+        rezult = [x[0] for x in self.cursor.fetchall()]
+        return rezult
 
-    def subvortaro(self, vortoj):
-        """Вернуть подсловарь со словами из vortoj"""
-        new_kore = {}
-        for key in vortoj:
-            key = key.lower()
-            new_kore[key] = self.kore.get(key, None)
-        return Vortaro(new_kore, kamp_num = self.kamp_num)
+    def search(self, word):
+        self.cursor.execute(
+            """SELECT word, root, description, comment FROM eo_ru
+                WHERE word LIKE ?""",
+            (f"{word}%",)
+        )
+        result = self.cursor.fetchall()
+        return result
 
-    def html(self):
-        """Вернуть словарь в виде текста в формате html"""
-        output = ""
-        cxeloj = '<td style="vertical-align:top;">{}</td>' * self.kamp_num
-        sxablono = f"<tr>{cxeloj}</tr>\n"
-        for key, value in self.kore.items():
-            key = f"<b>{key}</b>"
-            if value is not None:
-                lkrampo = value.count("(")
-                rkrampo = value.count(")")
-                if lkrampo == rkrampo:
-                    value = value.replace("(", "<i>(").replace(")", "</i>)")
-            else:
-                value = self.nomo_por_None + self.sep * (self.kamp_num - 1)
-            split = value.split(self.sep, maxsplit=self.kamp_num-1)
-            kampoj = [key] + split
-            output += sxablono.format(*kampoj)
-        output = f"<table>\n{output}</table>"
-        return output
+    def __del__(self):
+        self.connection.close()
 
-    def txt(self):
-        """Вернуть словарь в виде текста формате txt"""
-        output = ""
-        for key, value in self.kore.items():
-            value = value if value is not None else self.nomo_por_None
-            output += f"{key}{self.sep}{value}"
-        return output
+def html(table):
+    output = ""
+    columns_num = len(table[0])
+    cells = '<td style="vertical-align:top;">{}</td>' * columns_num
+    pattern = f"<tr>{cells}</tr>\n"
+    def italics(string):
+        lbracket = string.count("(")
+        rbracket = string.count(")")
+        if lbracket == rbracket:
+            string = string.replace("(", "<i>(").replace(")", "</i>)")
+        return string
+    for values in table:
+        key = f"<b>{values[0]}</b>"
+        values = list(map(italics, values[1:]))
+        output += pattern.format(key, *values)
+    output = f"<table>\n{output}</table>"
+    return output
 
-    def save(self, dvojo):
-        """Записать словарь файл в одном из форматов: txt, html"""
-        if dvojo.suffix == '':
-            dvojo = dvojo.with_name(f"{dvojo.name}.html")
-        switch = {".html": self.html, ".txt": self.txt}
-        if dvojo.suffix not in switch:
-            print("Eraro: Maltauxga dosiertipo:", dvojo.suffix)
-            print("Tauxgaj dosiertipoj:", ", ".join(switch.keys()))
-            return
-        output = switch[dvojo.suffix]()
-        CelDosiero(dvojo).skribi(output)
-
-
-vortaro = Vortaro().elsxuti_el_dosieron(BAZAVORTARO, kamp_num=3)
+def txt(table, sep = '\t'):
+    return '\n'.join([sep.join(line) for line in table])

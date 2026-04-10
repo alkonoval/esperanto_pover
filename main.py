@@ -1,9 +1,18 @@
+import configparser
 from argparse import ArgumentParser
 from pathlib import Path
 
-from modules.teksto import Teksto
+from modules.vortaro import DBController
+from modules.gui import GUIApplication
+from modules.teksto import Analizilo
+import tkinter
 
 TESTTEXT = Path(__file__).parent / "input" / "Teksto.txt"
+
+config = configparser.ConfigParser()  # создаём объекта парсера
+config.read("config.ini")
+BAZAVORTARO = Path(config['Paths']['main_dictionary'])
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument(
@@ -13,24 +22,32 @@ def parse_args():
         default=TESTTEXT,
         nargs="?",  # argument is optional
     )
+    parser.add_argument(
+        "--gui", help="Запустить графический интерфейс", action="store_true"
+    )
+    parser.add_argument(
+        "--dict",
+        help="Имя файла словаря",
+        type=Path,
+        default=BAZAVORTARO,
+        nargs="?",  # argument is optional
+    )
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
 
-    OUTPUT_DIR = Path("./output")
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    teksto = Teksto().elsxuti_el_dosieron(dvojo=args.filename)
-    teksto.prilabori()
-
-    # Сохранить морфологический разбор всех слов текста
-    teksto.skribi_dismorfigon(dvojo = OUTPUT_DIR / "Dismorfemo")
-
-    # Получить словарик для слов из текста
-    teksto.vortareto.save(dvojo = OUTPUT_DIR / "Vortareto")
-
-    # Сохранить словарные слова
-    teksto.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
-        OUTPUT_DIR / "Vortaraj_vortoj.txt"
-    )
+    if args.gui:
+        root = tkinter.Tk()
+        application = GUIApplication(root, args)
+        root.mainloop()
+    else:
+        database = DBController()
+        database.fill_dictionary_from(str(BAZAVORTARO))
+        
+        texto = Path(args.filename).read_text(encoding="utf-8-sig")
+        analizilo = Analizilo(database)
+        analizilo.prilabori(texto)
+        analizilo.write_down()
+        print("Словарь сохранен")

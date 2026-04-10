@@ -1,23 +1,24 @@
 import re
+from pathlib import Path
 
 from .dismorfemigilo import Dismorfemo, rafini_vorton
-from .dosierojn_ls import CelDosiero, FontDosiero, x_igi
+from .tformatilo import sen_x_igi
 from .utils import forigi_ripetojn_konservante_ordon
-from .vortaro import vortaro, Vortaro
+from .vortaro import html
 
-class Teksto:
+OUTPUT_DIR = Path("./output")
+
+class Analizilo:
     """Класс для обработки текста"""
 
-    def __init__(self, teksto=""):
-        self.teksto = x_igi(teksto)
+    def __init__(self, database):
+        self.database = database
+        self.vortaraj_radikoj = self.database.get_roots()
 
-    def elsxuti_el_dosieron(self, dvojo):
-        self.teksto = FontDosiero(dvojo).legi()
-        return self
-
-    def prilabori(self):
+    def prilabori(self, teksto):
+        self.teksto = teksto
         # список всех слов (без повторений), встречающихся в тексте 
-        self.vortoj = self.__spliti_al_vortoj() 
+        self.vortoj_kun_ripetoj, self.vortoj = self.__spliti_al_vortoj() 
         # dict: слово из текста -> класс с морфологическими разборами для него
         self.dismorfigo_por = self.__dismorfigi()
         # dict: слово из текста -> список слов из словаря, которые встречаются в этом слове в качестве корня
@@ -27,29 +28,30 @@ class Teksto:
         # список слов из словаря, которые встречаются в тексте в качестве корней
         self.vortaraj_vortoj = self.__ricevi_vortarajn_vortojn()
         # словарик для текста
-        self.vortareto = vortaro.subvortaro(
+        self.vortareto = self.database.get_litle_dictionary(
             self.nerekonitaj_vortoj + self.vortaraj_vortoj
         )
 
     def __spliti_al_vortoj(self, ignori_nombrojn=True):
         """Выдать слова, встречающиеся в тексте"""
-        vortoj = re.findall("[a-z'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
+        
+        vortoj = re.findall("[a-zĉĝĥĵŝŭ'\d-]+", self.teksto.lower(), flags=re.IGNORECASE)
         rezulto = forigi_ripetojn_konservante_ordon(vortoj)
         if ignori_nombrojn:
             rezulto = list(filter(lambda x: not x.isdigit(), rezulto))
-        return rezulto
+        return vortoj, rezulto
 
     def __dismorfigi(self):
         """Получить словарь: слово -> класс с морфологическими разборами для него"""
-        return {vorto : Dismorfemo(vorto) for vorto in self.vortoj}
+        return {vorto : Dismorfemo(vorto, self.vortaraj_radikoj) for vorto in self.vortoj}
     
     def __ricevi_vortarajn_vortojn_por(self):
-        cxefvortoj_el = vortaro.cxefvortoj_el_radiko
+        cxefvortoj_el = self.database.get_words_from_root
         vortaraj_vortoj_por = {}
         for vorto in self.vortoj:
             vortaraj_vortoj_por_vorto = []
             for radiko in self.dismorfigo_por[vorto].radikoj:
-                vortaraj_vortoj_por_vorto += cxefvortoj_el[radiko]
+                vortaraj_vortoj_por_vorto += cxefvortoj_el(radiko)
             vortaraj_vortoj_por_vorto += self.dismorfigo_por[vorto].vortetoj
 
             vortaraj_vortoj_por[vorto] = forigi_ripetojn_konservante_ordon(
@@ -71,18 +73,6 @@ class Teksto:
             vortaraj_vortoj += self.vortaraj_vortoj_por[vorto]
         return forigi_ripetojn_konservante_ordon(vortaraj_vortoj)
 
-    def skribi_dismorfigon(self, dvojo, plendetala=False):
-        if plendetala:
-            kore_por_vortaro = {
-                vorto: str(vdis.senlimigaj_disigoj)
-                for vorto, vdis in self.dismorfigo_por.items()
-            }
-        else:
-            kore_por_vortaro = {
-                vorto: str(vdis) for vorto, vdis in self.dismorfigo_por.items()
-            }
-        Vortaro(kore_por_vortaro).save(dvojo=dvojo)
-
     def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(self, dvojo):
         linioj = []
         vortaraj_vortoj = []
@@ -95,4 +85,40 @@ class Teksto:
                     vortaraj_vortoj.append(vortara_vorto)
             if vorto in self.nerekonitaj_vortoj:
                 linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
-        CelDosiero(dvojo=dvojo).skribi_liniojn(linioj)
+        output = sen_x_igi('\n'.join(linioj))
+        Path(dvojo).write_text(output, encoding="utf-8")
+    
+    def skribi_vortarajn_vortojn_rilate_al_originaj_vortoj_2(self, dvojo):
+        linioj = []
+        for vorto in self.vortoj_kun_ripetoj:
+            for vortara_vorto in self.vortaraj_vortoj_por.get(vorto, [vorto]):
+                linioj.append(f"{vorto}\t{vortara_vorto}")
+            if vorto in self.nerekonitaj_vortoj:
+                linioj.append(f"{vorto}#\t{rafini_vorton(vorto)}")
+        output = sen_x_igi('\n'.join(linioj))
+        Path(dvojo).write_text(output, encoding="utf-8")
+
+    def write_down(self):
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Сохранить морфологический разбор всех слов текста
+        output = [
+            (sen_x_igi(vorto), ', '.join([str(d) for d in vdis.senlimigaj_disigoj]))
+            for vorto, vdis in self.dismorfigo_por.items()
+        ]
+        output = html(output)
+        Path(OUTPUT_DIR / "Dismorfemo.html").write_text(output, encoding="utf-8")
+
+        # Получить словарик для слов из текста
+        output = html(self.vortareto)
+        Path(OUTPUT_DIR / "Vortareto.html").write_text(output, encoding="utf-8")
+
+        # Сохранить словарные слова
+        self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj(
+            OUTPUT_DIR / "Vortaraj_vortoj.txt"
+        )
+
+        # Сохранить таблицу <слово из текста> <словарное слово>.
+        self.skribi_vortarajn_vortojn_rilate_al_originaj_vortoj_2(
+            OUTPUT_DIR / "Vortaraj_vortoj_kun_origino.txt"
+        )
